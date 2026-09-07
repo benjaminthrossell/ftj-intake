@@ -8,503 +8,367 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap">
 <style>
-/* ── THE ONE LINE ─────────────────────────────────────────────────────
-   Dog Yard yellow. The one hero with a black label. --hero-ink is the
-   darker text shade: raw yellow fails as small text on white.        */
 :root{
   --hero:#FAB005; --on-hero:#111111; --hero-ink:#976C0A;
   --hero-wash:#FEF6E1; --hero-tint:#FDDB8E; --hero-deep:#B98308;
 }
 :root{
   color-scheme:light;
-  --paper:#FFFFFF; --ink:#111111; --ink-2:#5C5C5C; --line:#E4E4E4;
+  --paper:#FFFFFF; --ink:#111111; --ink-2:#5C5C5C;
   --panel:#F4F4F4; --ground:#F2F2F2; --surface:#FFFFFF;
   --danger:#B3261E; --go:#257834;
   --font:'Geist',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
-  /* THE NINE GAPS. Nothing in between, anywhere on this page. */
   --g1:4px; --g2:8px; --g3:12px; --g4:16px; --g5:24px;
   --g6:32px; --g7:48px; --g8:64px; --g9:96px;
-  --edge:20px;          /* the one exception: his locked page margin */
-  --r:6px;              /* one corner, everywhere except pills and the badge */
-  --btn-r:999px; --tap:48px;
-  --col:640px;          /* the column. it never gets wider than this. */
+  --edge:20px; --r:6px; --btn-r:999px; --tap:48px; --col:560px;
 }
 *{box-sizing:border-box;}
+html,body{height:100%;}
 body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--font);
   font-size:17px;font-weight:400;line-height:1.5;-webkit-font-smoothing:antialiased;
   font-variant-numeric:tabular-nums;-webkit-text-size-adjust:100%;}
 :focus-visible{outline:3px solid var(--ink);outline-offset:3px;}
 [hidden]{display:none!important;}
 
-/* ── THE COLUMN ────────────────────────────────────────────────────
-   Cover, page and bar all stop at the same width. On a wide screen it
-   is a column on the grey, not a form stretched across a monitor.  */
-.shell{max-width:var(--col);margin:0 auto;background:var(--ground);min-height:100vh;}
-
+.shell{max-width:var(--col);margin:0 auto;background:var(--ground);min-height:100%;
+  display:flex;flex-direction:column;}
 .badge{display:grid;place-items:center;border-radius:18%;flex:none;background:var(--hero);
   width:var(--g6);height:var(--g6);}
 .badge i{display:block;width:78%;height:78%;background:var(--ink);
   -webkit-mask:url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDI0IDEwMjQiPjxwYXRoIGZpbGw9IiMwMDAiIGQ9Ik03MDMuMTAgMzYwLjUxQzcwNS45OCAzNjAuNTggNzE5Ljc4IDM2NC4xMCA3MjYuNTQgMzY0Ljk4QzczMy4zMCAzNjUuODUgNzU0LjM3IDM2Ny4xMCA3NTkuNDYgMzY3Ljc3Qzc2NC41NSAzNjguNDMgNzY2LjYwIDM2OS40OCA3NjguOTQgMzcwLjU1Qzc3MS4yOSAzNzEuNjMgNzc1LjU3IDM3NS40MiA3NzguOTkgMzc2LjY5Qzc4Mi40MCAzNzcuOTYgNzkzLjkyIDM3OS45NSA3OTcuNDAgMzgxLjE2QzgwMC44OCAzODIuMzYgODA1LjQ2IDM4NS4xMyA4MDguMDAgMzg2Ljc0QzgxMC41NSAzODguMzQgODE2LjY2IDM5Mi45NCA4MTguNjAgMzk0LjU1QzgyMC41NSAzOTYuMTUgODIzLjQ1IDM5OC42NSA4MjQuMTggNDAwLjEzQzgyNC45MiA0MDEuNjAgODI0LjIxIDQwNS41NSA4MjQuNzQgNDA2LjgyQzgyNS4yOCA0MDguMTAgODI2LjMwIDQwOS4zMiA4MjguNjUgNDEwLjczQzgzMC45OSA0MTIuMTMgODM5LjI1IDQxNi42MCA4NDQuMjcgNDE4LjU0Qzg0OS4yOSA0MjAuNDggODY2LjgxIDQyNS41NyA4NzAuNTAgNDI2LjkxQzg3NC4xOCA0MjguMjUgODc0LjM2IDQyOC43NiA4NzQuOTYgNDI5LjcwQzg3NS41NiA0MzAuNjQgODc2LjA1IDQzMi45OCA4NzUuNTIgNDM0LjcyQzg3NC45OCA0MzYuNDYgODcxLjgzIDQ0Mi4yNyA4NzAuNTAgNDQ0LjIxQzg2OS4xNiA0NDYuMTUgODY1LjYzIDQ0OS44MyA4NjQuMzYgNDUwLjkwQzg2My4wOSA0NTEuOTcgODYxLjE3IDQ1Mi43MyA4NTkuODkgNDUzLjEzQzg1OC42MiA0NTMuNTQgODU1LjU2IDQ1NC4yNSA4NTMuNzYgNDU0LjI1Qzg1MS45NSA0NTQuMjUgODQ4LjY1IDQ1NC40MSA4NDQuODMgNDUzLjEzQzg0MS4wMSA0NTEuODYgODI1LjM3IDQ0NC43MiA4MjEuOTUgNDQzLjY1QzgxOC41NCA0NDIuNTggODE3LjUxIDQ0My43NCA4MTYuMzcgNDQ0LjIxQzgxNS4yMyA0NDQuNjggODEyLjgwIDQ0Ni41NSA4MTIuNDcgNDQ3LjU1QzgxMi4xMyA0NDguNTYgODEyLjE4IDQ1MS4wNCA4MTMuNTggNDUyLjU4QzgxNC45OSA0NTQuMTIgODIxLjcxIDQ1OC45MSA4MjQuMTggNDYwLjM5QzgyNi42NiA0NjEuODYgODMxLjA4IDQ2My45MSA4MzQuMjMgNDY0Ljg1QzgzNy4zNyA0NjUuNzkgODQ4LjI3IDQ2Ny4zMyA4NTAuNDEgNDY4LjIwQzg1Mi41NSA0NjkuMDcgODUyLjYyIDQ3MC45MCA4NTIuMDggNDcyLjExQzg1MS41NSA0NzMuMzEgODQ4LjI5IDQ3Ny4zNyA4NDUuOTQgNDc4LjI0Qzg0My42MCA0NzkuMTEgODM0LjkwIDQ3OS40MyA4MzIuNTUgNDc5LjM2QzgzMC4yMSA0NzkuMjkgODMwLjQzIDQ3OS40MyA4MjYuNDIgNDc3LjY4QzgyMi40MCA0NzUuOTQgODA0LjUwIDQ2Ni44NiA3OTkuMDggNDY0Ljg1Qzc5My42NSA0NjIuODQgNzg1Ljc3IDQ2MS41NSA3ODEuMjIgNDYwLjk1Qzc3Ni42NyA0NjAuMzQgNzY0Ljc1IDQ1OS43NiA3NjEuMTMgNDU5LjgzQzc1Ny41MiA0NTkuOTAgNzUzLjYzIDQ2MC43NyA3NTEuMDkgNDYxLjUwQzc0OC41NSA0NjIuMjQgNzQzLjA4IDQ2NC4xNiA3MzkuOTMgNDY1Ljk3QzczNi43OCA0NjcuNzggNzI3LjAxIDQ3NC43NiA3MjQuODcgNDc2LjU3QzcyMi43MiA0NzguMzggNzIxLjk0IDQ3OS42OSA3MjIuMDggNDgxLjAzQzcyMi4yMSA0ODIuMzcgNzI0LjcxIDQ4NC41MSA3MjUuOTggNDg3LjczQzcyNy4yNSA0OTAuOTQgNzMwLjgwIDUwNC42NyA3MzIuNjggNTA3LjgyQzczNC41NSA1MTAuOTYgNzM4LjU5IDUxMi41NSA3NDEuNjAgNTEzLjk1Qzc0NC42MiA1MTUuMzYgNzUzLjIzIDUxOC4yNiA3NTcuNzkgNTE5LjUzQzc2Mi4zNCA1MjAuODAgNzc0LjEyIDUyMy42MiA3NzkuNTUgNTI0LjU1Qzc4NC45NyA1MjUuNDkgNzkyLjQwIDUyNy4xNCA4MDIuOTggNTI3LjM0QzgxMy41NiA1MjcuNTUgODUzLjk4IDUyNC43NiA4NjcuNzEgNTI2LjIzQzg4MS40MyA1MjcuNzAgOTA3Ljc5IDUzOC4wMSA5MTcuMzYgNTM5LjYyQzkyNi45NCA1NDEuMjMgOTQyLjc0IDUzOS4xNSA5NDcuNDkgNTM5LjYyQzk1Mi4yNSA1NDAuMDkgOTU1LjQ0IDU0Mi42NSA5NTYuOTggNTQzLjUzQzk1OC41MiA1NDQuNDAgOTU5LjY2IDU0NS44NyA5NjAuMzMgNTQ2Ljg3Qzk2MS4wMCA1NDcuODggOTYyLjI5IDU1MC43NiA5NjIuNTYgNTUxLjg5Qzk2Mi44MyA1NTMuMDMgOTYyLjc2IDU1NS40MiA5NjIuNTYgNTU2LjM2Qzk2Mi4zNiA1NTcuMzAgOTYyLjE2IDU1OC42NCA5NjAuODkgNTU5LjcxQzk1OS42MSA1NjAuNzggOTU0LjEwIDU2NC41NSA5NTEuOTYgNTY1LjI5Qzk0OS44MiA1NjYuMDIgOTQ0LjMwIDU2NS45MSA5NDMuMDMgNTY1Ljg0Qzk0MS43NiA1NjUuNzggOTQxLjk2IDU2NC4zOSA5NDEuMzYgNTY0LjczQzk0MC43NSA1NjUuMDYgOTM5LjE1IDU2Ny45NiA5MzguMDEgNTY4LjYzQzkzNi44NyA1NjkuMzAgOTM0LjAxIDU3MC4xNyA5MzEuODcgNTcwLjMxQzkyOS43MyA1NzAuNDQgOTI0LjI0IDU3MS4wOSA5MjAuMTUgNTY5Ljc1QzkxNi4wNyA1NjguNDEgOTAxLjI1IDU2MC40OSA4OTcuODQgNTU5LjE1Qzg5NC40MiA1NTcuODEgODkzLjg0IDU1OC40NiA4OTEuNzAgNTU4LjU5Qzg4OS41NiA1NTguNzIgODgzLjQwIDU2MC44NyA4NzkuOTggNTYwLjI2Qzg3Ni41NyA1NTkuNjYgODY3LjE5IDU1NC40NCA4NjMuMjQgNTUzLjU3Qzg1OS4yOSA1NTIuNzAgODU0LjI5IDU1Mi42MSA4NDcuMDYgNTUzLjAxQzgzOS44MyA1NTMuNDEgODEwLjA4IDU1Ni40NSA4MDIuOTggNTU2LjkyQzc5NS44OCA1NTcuMzkgNzkxLjgwIDU1Ny43MiA3ODcuOTIgNTU2LjkyQzc4NC4wMyA1NTYuMTEgNzc0LjU3IDU1MS40OSA3NzAuNjIgNTUwLjIyQzc2Ni42NyA1NDguOTUgNzU0LjkzIDU0NS43MSA3NTUuMDAgNTQ2LjMyQzc1NS4wNiA1NDYuOTIgNzYyLjg3IDU0OS44MiA3NzEuMTggNTU1LjI0Qzc3OS40OCA1NjAuNjcgODEzLjIwIDU4NC4yOCA4MjQuMTggNTkxLjUxQzgzNS4xNiA1OTguNzQgODU2LjEyIDYxMS44OSA4NjIuNjggNjE1LjUwQzg2OS4yNSA2MTkuMTIgODczLjg0IDYyMC42NCA4NzguODYgNjIxLjY0Qzg4My44OSA2MjIuNjUgOTAwLjUxIDYyMy4yNyA5MDQuNTMgNjIzLjg3QzkwOC41NSA2MjQuNDggOTEwLjgwIDYyNS43OSA5MTIuMzQgNjI2LjY2QzkxMy44OCA2MjcuNTMgOTE2LjM2IDYyOS44NSA5MTcuMzYgNjMxLjEzQzkxOC4zNyA2MzIuNDAgOTIwLjI0IDYzNS45MiA5MjAuNzEgNjM3LjI2QzkyMS4xOCA2MzguNjAgOTIxLjQ3IDY0MS4wOCA5MjEuMjcgNjQyLjI5QzkyMS4wNyA2NDMuNDkgOTE5LjkxIDY0Ni41NyA5MTkuMDQgNjQ3LjMxQzkxOC4xNyA2NDguMDQgOTE0LjgyIDY0Ny45NSA5MTQuMDIgNjQ4LjQyQzkxMy4yMSA2NDguODkgOTEzLjIxIDY1MC42OCA5MTIuMzQgNjUxLjIxQzkxMS40NyA2NTEuNzUgOTA3Ljk3IDY1Mi42OSA5MDYuNzYgNjUyLjg5QzkwNS41NiA2NTMuMDkgOTAzLjM3IDY1My4yMiA5MDIuMzAgNjUyLjg5QzkwMS4yMyA2NTIuNTUgODk4LjcxIDY1MC4wMyA4OTcuODQgNjUwLjEwQzg5Ni45NyA2NTAuMTYgODk2LjA1IDY1Mi44NCA4OTUuMDUgNjUzLjQ1Qzg5NC4wNCA2NTQuMDUgODkxLjc0IDY1NS4wNSA4ODkuNDcgNjU1LjEyQzg4Ny4xOSA2NTUuMTkgODc4LjYyIDY1NC42NyA4NzYuMDcgNjU0LjAwQzg3My41MyA2NTMuMzMgODcwLjYxIDY1MS4yOCA4NjguMjYgNjQ5LjU0Qzg2NS45MiA2NDcuODAgODU5LjQzIDY0MS41MCA4NTYuNTUgNjM5LjUwQzg1My42NyA2MzcuNDkgODQ2LjgxIDYzMy44NyA4NDQuMjcgNjMyLjgwQzg0MS43MyA2MzEuNzMgODM3LjYyIDYzMC44NCA4MzUuMzQgNjMwLjU3QzgzMy4wNyA2MzAuMzAgODI2Ljk3IDYzMC43NyA4MjUuMzAgNjMwLjU3QzgyMy42MyA2MzAuMzcgODIzLjI3IDYzMC42NCA4MjEuMzkgNjI4Ljg5QzgxOS41MiA2MjcuMTUgODEyLjk2IDYxOC42MSA4MDkuNjggNjE2LjA2QzgwNi40MCA2MTMuNTIgNzk4LjA3IDYwOS40MyA3OTQuMDUgNjA3LjY5Qzc5MC4wNCA2MDUuOTUgNzgzLjM2IDYwMy42MyA3NzYuMjAgNjAxLjU1Qzc2OS4wMyA1OTkuNDggNzQzLjE5IDU5My4yNyA3MzQuMzUgNTkwLjM5QzcyNS41MSA1ODcuNTIgNzA5LjMxIDU3OS40NCA3MDIuNTUgNTc3LjU2QzY5NS43OCA1NzUuNjkgNjgxLjU0IDU3NS43OCA2NzguMDAgNTc0Ljc3QzY3NC40NSA1NzMuNzcgNjczLjc4IDU3MS4yNyA2NzIuOTcgNTY5LjE5QzY3Mi4xNyA1NjcuMTIgNjcyLjE3IDU2MC4yOSA2NzEuMzAgNTU3LjQ3QzY3MC40MyA1NTQuNjYgNjY3LjczIDU0OC41MCA2NjUuNzIgNTQ1Ljc2QzY2My43MSA1NDMuMDEgNjU4LjExIDUzNy40OCA2NTQuNTYgNTM0LjYwQzY1MS4wMSA1MzEuNzIgNjM4LjQ5IDUyMy4yNCA2MzYuMTUgNTIxLjc2QzYzMy44MCA1MjAuMjkgNjMzLjk2IDUyMS4xMiA2MzUuMDMgNTIyLjMyQzYzNi4xMCA1MjMuNTMgNjQzLjAwIDUyOS41MyA2NDUuMDggNTMxLjgxQzY0Ny4xNSA1MzQuMDggNjUzLjAwIDUzOC44MiA2NTIuMzMgNTQxLjI5QzY1MS42NiA1NDMuNzcgNjQzLjMxIDU0OS45OCA2MzkuNTAgNTUyLjQ1QzYzNS42OCA1NTQuOTMgNjI1LjIxIDU2MC4xMyA2MjAuNTIgNTYxLjk0QzYxNS44NCA1NjMuNzUgNjA0LjM5IDU2Ni42NSA2MDAuNDQgNTY3LjUyQzU5Ni40OSA1NjguMzkgNTkxLjg5IDU2OS4wNiA1ODcuNjAgNTY5LjE5QzU4My4zMiA1NjkuMzMgNTY5LjE1IDU2OS4wNCA1NjQuNzMgNTY4LjYzQzU2MC4zMSA1NjguMjMgNTU0LjMzIDU2Ni44NSA1NTAuNzggNTY1Ljg0QzU0Ny4yMyA1NjQuODQgNTM5LjQ0IDU2Mi4yNyA1MzUuMTYgNTYwLjI2QzUzMC44NyA1NTguMjYgNTIwLjIyIDU1Mi40NSA1MTUuMDcgNTQ5LjEwQzUwOS45MSA1NDUuNzYgNDk3LjY4IDUzNS42NSA0OTIuMTkgNTMyLjM3QzQ4Ni43MCA1MjkuMDkgNDczLjczIDUyMy40NCA0NjkuMzIgNTIxLjc2QzQ2NC45MCA1MjAuMDkgNDYwLjcyIDUxOS4yMiA0NTUuMzcgNTE4LjQyQzQ1MC4wMSA1MTcuNjEgNDMxLjA0IDUxNS40NyA0MjQuNjggNTE1LjA3QzQxOC4zMiA1MTQuNjcgNDA2LjI0IDUxNC44NyA0MDIuMzYgNTE1LjA3QzM5OC40OCA1MTUuMjcgMzkyLjExIDUxNy45NSAzOTIuMzIgNTE2Ljc0QzM5Mi41MiA1MTUuNTQgNDAwLjYyIDUwNy41MCA0MDQuMDMgNTA1LjAzQzQwNy40NSA1MDIuNTUgNDE5LjkwIDQ5Ni45NyA0MjAuNzcgNDk2LjEwQzQyMS42NCA0OTUuMjMgNDEzLjYzIDQ5Ni45NyA0MTEuMjkgNDk3Ljc3QzQwOC45NCA0OTguNTggNDA3LjE0IDQ5Ny4zNyA0MDEuMjQgNTAyLjc5QzM5NS4zNSA1MDguMjIgMzcwLjA5IDUzNS43NCAzNjIuMTkgNTQyLjk3QzM1NC4yOCA1NTAuMjAgMzQwLjg5IDU1OS43MSAzMzUuNDAgNTYzLjA1QzMyOS45MSA1NjYuNDAgMzIxLjM5IDU2OS40NiAzMTYuNDMgNTcwLjg3QzMxMS40OCA1NzIuMjcgMzAxLjgxIDU3Mi41MCAyOTQuMTEgNTc0Ljc3QzI4Ni40MSA1NzcuMDUgMjYwLjE3IDU4Ny4yMyAyNTIuMjcgNTg5Ljg0QzI0NC4zNiA1OTIuNDUgMjMzLjQzIDU5NC43OSAyMjguMjcgNTk2LjUzQzIyMy4xMiA1OTguMjcgMjEzLjE5IDYwMi40MCAyMDkuMzAgNjA0LjM0QzIwNS40MiA2MDYuMjkgMTk4LjcyIDYxMC43MCAxOTUuOTEgNjEyLjcxQzE5My4xMCA2MTQuNzIgMTkwLjIyIDYxNi41MyAxODUuODcgNjIxLjA4QzE4MS41MSA2MjUuNjQgMTYzLjg2IDY0Ni4zNyAxNTkuNjQgNjUwLjY2QzE1NS40MiA2NTQuOTQgMTUzLjMzIDY1NS4zOSAxNTAuNzIgNjU2Ljc5QzE0OC4xMCA2NTguMjAgMTQwLjk2IDY2MS42NCAxMzcuODggNjYyLjM3QzEzNC44MCA2NjMuMTEgMTI2Ljg2IDY2My4xMyAxMjUuMDUgNjYyLjkzQzEyMy4yNCA2NjIuNzMgMTIzLjgyIDY2MS4xNyAxMjIuODIgNjYwLjcwQzEyMS44MSA2NjAuMjMgMTE3LjgyIDY1OS44MyAxMTYuNjggNjU5LjAyQzExNS41NCA2NTguMjIgMTEzLjczIDY1NS40OCAxMTMuMzMgNjU0LjAwQzExMi45MyA2NTIuNTMgMTEzLjAwIDY0OC4yMiAxMTMuMzMgNjQ2Ljc1QzExMy42NyA2NDUuMjggMTE1LjEyIDY0Mi43MyAxMTYuMTIgNjQxLjczQzExNy4xMyA2NDAuNzIgMTIwLjcwIDYzOS41OSAxMjEuNzAgNjM4LjM4QzEyMi43MSA2MzcuMTcgMTIzLjE1IDYzMi45NiAxMjQuNDkgNjMxLjY4QzEyNS44MyA2MzAuNDEgMTMwLjY1IDYyOC4zMSAxMzIuODYgNjI3Ljc4QzEzNS4wNyA2MjcuMjQgMTM5Ljg5IDYyOC40MyAxNDIuOTAgNjI3LjIyQzE0NS45MiA2MjYuMDIgMTUyLjY4IDYyMi4wOSAxNTcuOTcgNjE3Ljc0QzE2My4yNiA2MTMuMzggMTgyLjEwIDU5Ni4wNCAxODYuOTggNTkwLjk1QzE5MS44NyA1ODUuODYgMTk2LjY5IDU3Ny43NCAxOTguNzAgNTc1LjMzQzIwMC43MSA1NzIuOTIgMjAyLjM4IDU3MS42NyAyMDMuNzIgNTcwLjg3QzIwNS4wNiA1NzAuMDYgMjA3LjQ1IDU2OC44MyAyMDkuODYgNTY4LjYzQzIxMi4yNyA1NjguNDMgMjIxLjQwIDU2OS4yNiAyMjMuODEgNTY5LjE5QzIyNi4yMiA1NjkuMTIgMjI3LjI3IDU2OS4wMSAyMjkuOTUgNTY4LjA4QzIzMi42MiA1NjcuMTQgMjQ1Ljk5IDU2Mi4yNSAyNDYuMTMgNTYxLjM4QzI0Ni4yNiA1NjAuNTEgMjM3LjI5IDU2MS42OSAyMzEuMDYgNTYwLjgyQzIyNC44NCA1NTkuOTUgMjAxLjQwIDU1NC44MCAxOTQuMjQgNTU0LjEzQzE4Ny4wNyA1NTMuNDYgMTc1Ljk4IDU1NC41NyAxNzEuMzYgNTU1LjI0QzE2Ni43NCA1NTUuOTEgMTU5LjI5IDU1OC4zNyAxNTUuNzQgNTU5LjcxQzE1Mi4xOSA1NjEuMDUgMTQ3LjIxIDU2Mi43OSAxNDEuNzkgNTY2LjQwQzEzNi4zNiA1NzAuMDIgMTE2LjEwIDU4Ni4xNSAxMTAuNTQgNTg5Ljg0QzEwNC45OCA1OTMuNTIgOTguOTYgNTk1LjgyIDk1LjQ4IDU5Ny4wOUM5MS45OSA1OTguMzYgODQuMzQgNjAwLjA0IDgxLjUzIDYwMC40NEM3OC43MSA2MDAuODQgNzMuOTIgNjAwLjcxIDcyLjA0IDYwMC40NEM3MC4xNyA2MDAuMTcgNjcuMTEgNTk5LjA4IDY1LjkwIDU5OC4yMUM2NC43MCA1OTcuMzQgNjIuNTMgNTk0LjM5IDYyLjAwIDU5My4xOEM2MS40NiA1OTEuOTggNjEuMzEgNTg5LjM3IDYxLjQ0IDU4OC4xNkM2MS41NyA1ODYuOTYgNjIuMjQgNTg0LjQ4IDYzLjExIDU4My4xNEM2My45OCA1ODEuODAgNjcuNDIgNTc4LjAxIDY4LjY5IDU3Ny4wMEM2OS45NyA1NzYuMDAgNzIuNzEgNTc1Ljc4IDczLjcyIDU3NC43N0M3NC43MiA1NzMuNzcgNzUuNzkgNTY5Ljc3IDc3LjA2IDU2OC42M0M3OC4zNCA1NjcuNTAgODEuMzcgNTY1LjgyIDg0LjMyIDU2NS4yOUM4Ny4yNiA1NjQuNzUgOTguNTMgNTY0Ljc3IDEwMS42MSA1NjQuMTdDMTA0LjY5IDU2My41NyAxMDIuNzUgNTY1LjM1IDEwOS45OCA1NjAuMjZDMTE3LjIxIDU1NS4xOCAxNTQuMTEgNTI2LjUyIDE2MS44NyA1MjEuNzZDMTY5LjY0IDUxNy4wMSAxNzEuNjkgNTIwLjI1IDE3NC43MSA1MjAuNjVDMTc3LjcyIDUyMS4wNSAxODMuMzcgNTI0LjQ0IDE4Ni45OCA1MjUuMTFDMTkwLjYwIDUyNS43OCAyMDAuMDIgNTI2LjUwIDIwNC44NCA1MjYuMjNDMjA5LjY2IDUyNS45NiAyMjEuODcgNTI0LjE1IDIyNy4xNiA1MjIuODhDMjMyLjQ1IDUyMS42MSAyNDUuMTcgNTE3LjUwIDI0OC45MiA1MTUuNjNDMjUyLjY3IDUxMy43NSAyNTUuODYgNTExLjQxIDI1OC40MCA1MDcuMjZDMjYwLjk1IDUwMy4xMSAyNjcuNzggNDg1LjU5IDI3MC4xMiA0ODEuMDNDMjcyLjQ2IDQ3Ni40OCAyNzUuNzkgNDcxLjkzIDI3Ny45MyA0NjkuMzJDMjgwLjA3IDQ2Ni43MCAyODUuNTcgNDYxLjIxIDI4Ny45OCA0NTkuMjdDMjkwLjM5IDQ1Ny4zMyAyOTcuNjIgNDUzLjk0IDI5OC4wMiA0NTMuMTNDMjk4LjQyIDQ1Mi4zMyAyOTUuMDEgNDUyLjMxIDI5MS4zMiA0NTIuNThDMjg3LjY0IDQ1Mi44NCAyNzUuMzcgNDU0LjA5IDI2Ny4zMyA0NTUuMzdDMjU5LjMwIDQ1Ni42NCAyMzIuMDAgNDYxLjk3IDIyNC4zNyA0NjMuMThDMjE2LjczIDQ2NC4zOCAyMTAuNjkgNDY1LjA3IDIwMy43MiA0NjUuNDFDMTk2Ljc2IDQ2NS43NCAxNzQuMzcgNDY2LjE3IDE2Ni4zNCA0NjUuOTdDMTU4LjMwIDQ2NS43NyAxNDUuMzQgNDY0Ljk0IDEzNi43NyA0NjMuNzRDMTI4LjIwIDQ2Mi41MyAxMDIuNzUgNDU4LjAwIDk0LjkyIDQ1NS45MkM4Ny4wOCA0NTMuODUgNzUuMzAgNDQ4LjQ1IDcxLjQ4IDQ0Ni40NEM2Ny42NyA0NDQuNDMgNjQuMzIgNDQwLjUyIDYzLjExIDQzOS4xOUM2MS45MSA0MzcuODUgNjEuNTEgNDM2LjIyIDYxLjQ0IDQzNS4yOEM2MS4zNyA0MzQuMzQgNjEuODkgNDMyLjI0IDYyLjU2IDQzMS4zN0M2My4yMyA0MzAuNTAgNjQuOTQgNDI4LjcwIDY3LjAyIDQyOC4wM0M2OS4xMCA0MjcuMzYgNzcuMTEgNDI2LjA2IDc5Ljg1IDQyNS43OUM4Mi42MCA0MjUuNTMgODMuMDcgNDI1LjEyIDg5LjkwIDQyNS43OUM5Ni43MyA0MjYuNDYgMTI3LjY2IDQzMC41MCAxMzYuNzcgNDMxLjM3QzE0NS44NyA0MzIuMjQgMTU3LjgxIDQzMi45MSAxNjUuNzggNDMzLjA1QzE3My43NSA0MzMuMTggMTkyLjg1IDQzMy4wOSAyMDMuMTYgNDMyLjQ5QzIxMy40OCA0MzEuODkgMjM4LjUyIDQyOC40OSAyNTEuNzEgNDI4LjAzQzI2NC45MCA0MjcuNTYgMzA0LjU4IDQyOC41OCAzMTMuMDggNDI4LjU4QzMyMS41OSA0MjguNTggMzE5Ljc2IDQyOS4xNiAzMjIuNTcgNDI4LjAzQzMyNS4zOCA0MjYuODkgMzMyLjg0IDQyMC45MSAzMzYuNTIgNDE5LjEwQzM0MC4yMCA0MTcuMjkgMzQ5LjkxIDQxNC4wMyAzNTMuMjYgNDEyLjk2QzM1Ni42MSA0MTEuODkgMzYwLjgwIDQxMC43NyAzNjQuNDIgNDEwLjE3QzM2OC4wMyA0MDkuNTcgMzc4LjMwIDQwOC4xNCAzODMuMzkgNDA3Ljk0QzM4OC40OCA0MDcuNzQgMzk2LjE4IDQwNy40OSA0MDYuODIgNDA4LjUwQzQxNy40NyA0MDkuNTAgNDU5LjA1IDQxNS4zMCA0NzIuMTEgNDE2LjMxQzQ4NS4xNiA0MTcuMzEgNTA1LjMyIDQxNy4yNyA1MTUuNjMgNDE2Ljg3QzUyNS45NCA0MTYuNDYgNTUwLjk0IDQxMy45MCA1NTguMDMgNDEyLjk2QzU2NS4xMyA0MTIuMDIgNTY5LjU1IDQxMC42NiA1NzQuNzcgNDA5LjA1QzU3OS45OSA0MDcuNDUgNTk2LjMzIDQwMS4wNCA2MDEuNTUgMzk5LjU3QzYwNi43OCAzOTguMTAgNjE0LjA3IDM5Ny4wNSA2MTguMjkgMzk2Ljc4QzYyMi41MSAzOTYuNTEgNjMxLjgyIDM5Ni43MyA2MzYuNzEgMzk3LjM0QzY0MS41OSAzOTcuOTQgNjU0LjgxIDQwMS4yNyA2NTkuMDIgNDAxLjgwQzY2My4yNCA0MDIuMzQgNjcwLjA1IDQwMS45NCA2NzEuODYgNDAxLjgwQzY3My42NyA0MDEuNjcgNjc0LjgzIDQwMS4yMiA2NzQuMDkgNDAwLjY5QzY3My4zNSA0MDAuMTUgNjY3LjE5IDM5OC4yNyA2NjUuNzIgMzk3LjM0QzY2NC4yNSAzOTYuNDAgNjU4LjYwIDM5NC4yOCA2NjEuODEgMzkyLjg3QzY2NS4wMyAzOTEuNDcgNjg0LjU0IDM4Ni40MiA2OTIuNTAgMzg1LjYyQzcwMC40NyAzODQuODIgNzI1LjMzIDM4Ni45OCA3MjguMjEgMzg2LjE4QzczMS4wOSAzODUuMzcgNzE5LjE3IDM4MC45MyA3MTYuNTAgMzc4LjkyQzcxMy44MiAzNzYuOTIgNzA3LjU3IDM3MS4xOCA3MDUuODkgMzY5LjQ0QzcwNC4yMiAzNjcuNzAgNzAyLjg4IDM2NS40OSA3MDIuNTUgMzY0LjQyQzcwMi4yMSAzNjMuMzUgNzAwLjIzIDM2MC40NCA3MDMuMTAgMzYwLjUxWiIvPjwvc3ZnPg==) center / contain no-repeat;
           mask:url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDI0IDEwMjQiPjxwYXRoIGZpbGw9IiMwMDAiIGQ9Ik03MDMuMTAgMzYwLjUxQzcwNS45OCAzNjAuNTggNzE5Ljc4IDM2NC4xMCA3MjYuNTQgMzY0Ljk4QzczMy4zMCAzNjUuODUgNzU0LjM3IDM2Ny4xMCA3NTkuNDYgMzY3Ljc3Qzc2NC41NSAzNjguNDMgNzY2LjYwIDM2OS40OCA3NjguOTQgMzcwLjU1Qzc3MS4yOSAzNzEuNjMgNzc1LjU3IDM3NS40MiA3NzguOTkgMzc2LjY5Qzc4Mi40MCAzNzcuOTYgNzkzLjkyIDM3OS45NSA3OTcuNDAgMzgxLjE2QzgwMC44OCAzODIuMzYgODA1LjQ2IDM4NS4xMyA4MDguMDAgMzg2Ljc0QzgxMC41NSAzODguMzQgODE2LjY2IDM5Mi45NCA4MTguNjAgMzk0LjU1QzgyMC41NSAzOTYuMTUgODIzLjQ1IDM5OC42NSA4MjQuMTggNDAwLjEzQzgyNC45MiA0MDEuNjAgODI0LjIxIDQwNS41NSA4MjQuNzQgNDA2LjgyQzgyNS4yOCA0MDguMTAgODI2LjMwIDQwOS4zMiA4MjguNjUgNDEwLjczQzgzMC45OSA0MTIuMTMgODM5LjI1IDQxNi42MCA4NDQuMjcgNDE4LjU0Qzg0OS4yOSA0MjAuNDggODY2LjgxIDQyNS41NyA4NzAuNTAgNDI2LjkxQzg3NC4xOCA0MjguMjUgODc0LjM2IDQyOC43NiA4NzQuOTYgNDI5LjcwQzg3NS41NiA0MzAuNjQgODc2LjA1IDQzMi45OCA4NzUuNTIgNDM0LjcyQzg3NC45OCA0MzYuNDYgODcxLjgzIDQ0Mi4yNyA4NzAuNTAgNDQ0LjIxQzg2OS4xNiA0NDYuMTUgODY1LjYzIDQ0OS44MyA4NjQuMzYgNDUwLjkwQzg2My4wOSA0NTEuOTcgODYxLjE3IDQ1Mi43MyA4NTkuODkgNDUzLjEzQzg1OC42MiA0NTMuNTQgODU1LjU2IDQ1NC4yNSA4NTMuNzYgNDU0LjI1Qzg1MS45NSA0NTQuMjUgODQ4LjY1IDQ1NC40MSA4NDQuODMgNDUzLjEzQzg0MS4wMSA0NTEuODYgODI1LjM3IDQ0NC43MiA4MjEuOTUgNDQzLjY1QzgxOC41NCA0NDIuNTggODE3LjUxIDQ0My43NCA4MTYuMzcgNDQ0LjIxQzgxNS4yMyA0NDQuNjggODEyLjgwIDQ0Ni41NSA4MTIuNDcgNDQ3LjU1QzgxMi4xMyA0NDguNTYgODEyLjE4IDQ1MS4wNCA4MTMuNTggNDUyLjU4QzgxNC45OSA0NTQuMTIgODIxLjcxIDQ1OC45MSA4MjQuMTggNDYwLjM5QzgyNi42NiA0NjEuODYgODMxLjA4IDQ2My45MSA4MzQuMjMgNDY0Ljg1QzgzNy4zNyA0NjUuNzkgODQ4LjI3IDQ2Ny4zMyA4NTAuNDEgNDY4LjIwQzg1Mi41NSA0NjkuMDcgODUyLjYyIDQ3MC45MCA4NTIuMDggNDcyLjExQzg1MS41NSA0NzMuMzEgODQ4LjI5IDQ3Ny4zNyA4NDUuOTQgNDc4LjI0Qzg0My42MCA0NzkuMTEgODM0LjkwIDQ3OS40MyA4MzIuNTUgNDc5LjM2QzgzMC4yMSA0NzkuMjkgODMwLjQzIDQ3OS40MyA4MjYuNDIgNDc3LjY4QzgyMi40MCA0NzUuOTQgODA0LjUwIDQ2Ni44NiA3OTkuMDggNDY0Ljg1Qzc5My42NSA0NjIuODQgNzg1Ljc3IDQ2MS41NSA3ODEuMjIgNDYwLjk1Qzc3Ni42NyA0NjAuMzQgNzY0Ljc1IDQ1OS43NiA3NjEuMTMgNDU5LjgzQzc1Ny41MiA0NTkuOTAgNzUzLjYzIDQ2MC43NyA3NTEuMDkgNDYxLjUwQzc0OC41NSA0NjIuMjQgNzQzLjA4IDQ2NC4xNiA3MzkuOTMgNDY1Ljk3QzczNi43OCA0NjcuNzggNzI3LjAxIDQ3NC43NiA3MjQuODcgNDc2LjU3QzcyMi43MiA0NzguMzggNzIxLjk0IDQ3OS42OSA3MjIuMDggNDgxLjAzQzcyMi4yMSA0ODIuMzcgNzI0LjcxIDQ4NC41MSA3MjUuOTggNDg3LjczQzcyNy4yNSA0OTAuOTQgNzMwLjgwIDUwNC42NyA3MzIuNjggNTA3LjgyQzczNC41NSA1MTAuOTYgNzM4LjU5IDUxMi41NSA3NDEuNjAgNTEzLjk1Qzc0NC42MiA1MTUuMzYgNzUzLjIzIDUxOC4yNiA3NTcuNzkgNTE5LjUzQzc2Mi4zNCA1MjAuODAgNzc0LjEyIDUyMy42MiA3NzkuNTUgNTI0LjU1Qzc4NC45NyA1MjUuNDkgNzkyLjQwIDUyNy4xNCA4MDIuOTggNTI3LjM0QzgxMy41NiA1MjcuNTUgODUzLjk4IDUyNC43NiA4NjcuNzEgNTI2LjIzQzg4MS40MyA1MjcuNzAgOTA3Ljc5IDUzOC4wMSA5MTcuMzYgNTM5LjYyQzkyNi45NCA1NDEuMjMgOTQyLjc0IDUzOS4xNSA5NDcuNDkgNTM5LjYyQzk1Mi4yNSA1NDAuMDkgOTU1LjQ0IDU0Mi42NSA5NTYuOTggNTQzLjUzQzk1OC41MiA1NDQuNDAgOTU5LjY2IDU0NS44NyA5NjAuMzMgNTQ2Ljg3Qzk2MS4wMCA1NDcuODggOTYyLjI5IDU1MC43NiA5NjIuNTYgNTUxLjg5Qzk2Mi44MyA1NTMuMDMgOTYyLjc2IDU1NS40MiA5NjIuNTYgNTU2LjM2Qzk2Mi4zNiA1NTcuMzAgOTYyLjE2IDU1OC42NCA5NjAuODkgNTU5LjcxQzk1OS42MSA1NjAuNzggOTU0LjEwIDU2NC41NSA5NTEuOTYgNTY1LjI5Qzk0OS44MiA1NjYuMDIgOTQ0LjMwIDU2NS45MSA5NDMuMDMgNTY1Ljg0Qzk0MS43NiA1NjUuNzggOTQxLjk2IDU2NC4zOSA5NDEuMzYgNTY0LjczQzk0MC43NSA1NjUuMDYgOTM5LjE1IDU2Ny45NiA5MzguMDEgNTY4LjYzQzkzNi44NyA1NjkuMzAgOTM0LjAxIDU3MC4xNyA5MzEuODcgNTcwLjMxQzkyOS43MyA1NzAuNDQgOTI0LjI0IDU3MS4wOSA5MjAuMTUgNTY5Ljc1QzkxNi4wNyA1NjguNDEgOTAxLjI1IDU2MC40OSA4OTcuODQgNTU5LjE1Qzg5NC40MiA1NTcuODEgODkzLjg0IDU1OC40NiA4OTEuNzAgNTU4LjU5Qzg4OS41NiA1NTguNzIgODgzLjQwIDU2MC44NyA4NzkuOTggNTYwLjI2Qzg3Ni41NyA1NTkuNjYgODY3LjE5IDU1NC40NCA4NjMuMjQgNTUzLjU3Qzg1OS4yOSA1NTIuNzAgODU0LjI5IDU1Mi42MSA4NDcuMDYgNTUzLjAxQzgzOS44MyA1NTMuNDEgODEwLjA4IDU1Ni40NSA4MDIuOTggNTU2LjkyQzc5NS44OCA1NTcuMzkgNzkxLjgwIDU1Ny43MiA3ODcuOTIgNTU2LjkyQzc4NC4wMyA1NTYuMTEgNzc0LjU3IDU1MS40OSA3NzAuNjIgNTUwLjIyQzc2Ni42NyA1NDguOTUgNzU0LjkzIDU0NS43MSA3NTUuMDAgNTQ2LjMyQzc1NS4wNiA1NDYuOTIgNzYyLjg3IDU0OS44MiA3NzEuMTggNTU1LjI0Qzc3OS40OCA1NjAuNjcgODEzLjIwIDU4NC4yOCA4MjQuMTggNTkxLjUxQzgzNS4xNiA1OTguNzQgODU2LjEyIDYxMS44OSA4NjIuNjggNjE1LjUwQzg2OS4yNSA2MTkuMTIgODczLjg0IDYyMC42NCA4NzguODYgNjIxLjY0Qzg4My44OSA2MjIuNjUgOTAwLjUxIDYyMy4yNyA5MDQuNTMgNjIzLjg3QzkwOC41NSA2MjQuNDggOTEwLjgwIDYyNS43OSA5MTIuMzQgNjI2LjY2QzkxMy44OCA2MjcuNTMgOTE2LjM2IDYyOS44NSA5MTcuMzYgNjMxLjEzQzkxOC4zNyA2MzIuNDAgOTIwLjI0IDYzNS45MiA5MjAuNzEgNjM3LjI2QzkyMS4xOCA2MzguNjAgOTIxLjQ3IDY0MS4wOCA5MjEuMjcgNjQyLjI5QzkyMS4wNyA2NDMuNDkgOTE5LjkxIDY0Ni41NyA5MTkuMDQgNjQ3LjMxQzkxOC4xNyA2NDguMDQgOTE0LjgyIDY0Ny45NSA5MTQuMDIgNjQ4LjQyQzkxMy4yMSA2NDguODkgOTEzLjIxIDY1MC42OCA5MTIuMzQgNjUxLjIxQzkxMS40NyA2NTEuNzUgOTA3Ljk3IDY1Mi42OSA5MDYuNzYgNjUyLjg5QzkwNS41NiA2NTMuMDkgOTAzLjM3IDY1My4yMiA5MDIuMzAgNjUyLjg5QzkwMS4yMyA2NTIuNTUgODk4LjcxIDY1MC4wMyA4OTcuODQgNjUwLjEwQzg5Ni45NyA2NTAuMTYgODk2LjA1IDY1Mi44NCA4OTUuMDUgNjUzLjQ1Qzg5NC4wNCA2NTQuMDUgODkxLjc0IDY1NS4wNSA4ODkuNDcgNjU1LjEyQzg4Ny4xOSA2NTUuMTkgODc4LjYyIDY1NC42NyA4NzYuMDcgNjU0LjAwQzg3My41MyA2NTMuMzMgODcwLjYxIDY1MS4yOCA4NjguMjYgNjQ5LjU0Qzg2NS45MiA2NDcuODAgODU5LjQzIDY0MS41MCA4NTYuNTUgNjM5LjUwQzg1My42NyA2MzcuNDkgODQ2LjgxIDYzMy44NyA4NDQuMjcgNjMyLjgwQzg0MS43MyA2MzEuNzMgODM3LjYyIDYzMC44NCA4MzUuMzQgNjMwLjU3QzgzMy4wNyA2MzAuMzAgODI2Ljk3IDYzMC43NyA4MjUuMzAgNjMwLjU3QzgyMy42MyA2MzAuMzcgODIzLjI3IDYzMC42NCA4MjEuMzkgNjI4Ljg5QzgxOS41MiA2MjcuMTUgODEyLjk2IDYxOC42MSA4MDkuNjggNjE2LjA2QzgwNi40MCA2MTMuNTIgNzk4LjA3IDYwOS40MyA3OTQuMDUgNjA3LjY5Qzc5MC4wNCA2MDUuOTUgNzgzLjM2IDYwMy42MyA3NzYuMjAgNjAxLjU1Qzc2OS4wMyA1OTkuNDggNzQzLjE5IDU5My4yNyA3MzQuMzUgNTkwLjM5QzcyNS41MSA1ODcuNTIgNzA5LjMxIDU3OS40NCA3MDIuNTUgNTc3LjU2QzY5NS43OCA1NzUuNjkgNjgxLjU0IDU3NS43OCA2NzguMDAgNTc0Ljc3QzY3NC40NSA1NzMuNzcgNjczLjc4IDU3MS4yNyA2NzIuOTcgNTY5LjE5QzY3Mi4xNyA1NjcuMTIgNjcyLjE3IDU2MC4yOSA2NzEuMzAgNTU3LjQ3QzY3MC40MyA1NTQuNjYgNjY3LjczIDU0OC41MCA2NjUuNzIgNTQ1Ljc2QzY2My43MSA1NDMuMDEgNjU4LjExIDUzNy40OCA2NTQuNTYgNTM0LjYwQzY1MS4wMSA1MzEuNzIgNjM4LjQ5IDUyMy4yNCA2MzYuMTUgNTIxLjc2QzYzMy44MCA1MjAuMjkgNjMzLjk2IDUyMS4xMiA2MzUuMDMgNTIyLjMyQzYzNi4xMCA1MjMuNTMgNjQzLjAwIDUyOS41MyA2NDUuMDggNTMxLjgxQzY0Ny4xNSA1MzQuMDggNjUzLjAwIDUzOC44MiA2NTIuMzMgNTQxLjI5QzY1MS42NiA1NDMuNzcgNjQzLjMxIDU0OS45OCA2MzkuNTAgNTUyLjQ1QzYzNS42OCA1NTQuOTMgNjI1LjIxIDU2MC4xMyA2MjAuNTIgNTYxLjk0QzYxNS44NCA1NjMuNzUgNjA0LjM5IDU2Ni42NSA2MDAuNDQgNTY3LjUyQzU5Ni40OSA1NjguMzkgNTkxLjg5IDU2OS4wNiA1ODcuNjAgNTY5LjE5QzU4My4zMiA1NjkuMzMgNTY5LjE1IDU2OS4wNCA1NjQuNzMgNTY4LjYzQzU2MC4zMSA1NjguMjMgNTU0LjMzIDU2Ni44NSA1NTAuNzggNTY1Ljg0QzU0Ny4yMyA1NjQuODQgNTM5LjQ0IDU2Mi4yNyA1MzUuMTYgNTYwLjI2QzUzMC44NyA1NTguMjYgNTIwLjIyIDU1Mi40NSA1MTUuMDcgNTQ5LjEwQzUwOS45MSA1NDUuNzYgNDk3LjY4IDUzNS42NSA0OTIuMTkgNTMyLjM3QzQ4Ni43MCA1MjkuMDkgNDczLjczIDUyMy40NCA0NjkuMzIgNTIxLjc2QzQ2NC45MCA1MjAuMDkgNDYwLjcyIDUxOS4yMiA0NTUuMzcgNTE4LjQyQzQ1MC4wMSA1MTcuNjEgNDMxLjA0IDUxNS40NyA0MjQuNjggNTE1LjA3QzQxOC4zMiA1MTQuNjcgNDA2LjI0IDUxNC44NyA0MDIuMzYgNTE1LjA3QzM5OC40OCA1MTUuMjcgMzkyLjExIDUxNy45NSAzOTIuMzIgNTE2Ljc0QzM5Mi41MiA1MTUuNTQgNDAwLjYyIDUwNy41MCA0MDQuMDMgNTA1LjAzQzQwNy40NSA1MDIuNTUgNDE5LjkwIDQ5Ni45NyA0MjAuNzcgNDk2LjEwQzQyMS42NCA0OTUuMjMgNDEzLjYzIDQ5Ni45NyA0MTEuMjkgNDk3Ljc3QzQwOC45NCA0OTguNTggNDA3LjE0IDQ5Ny4zNyA0MDEuMjQgNTAyLjc5QzM5NS4zNSA1MDguMjIgMzcwLjA5IDUzNS43NCAzNjIuMTkgNTQyLjk3QzM1NC4yOCA1NTAuMjAgMzQwLjg5IDU1OS43MSAzMzUuNDAgNTYzLjA1QzMyOS45MSA1NjYuNDAgMzIxLjM5IDU2OS40NiAzMTYuNDMgNTcwLjg3QzMxMS40OCA1NzIuMjcgMzAxLjgxIDU3Mi41MCAyOTQuMTEgNTc0Ljc3QzI4Ni40MSA1NzcuMDUgMjYwLjE3IDU4Ny4yMyAyNTIuMjcgNTg5Ljg0QzI0NC4zNiA1OTIuNDUgMjMzLjQzIDU5NC43OSAyMjguMjcgNTk2LjUzQzIyMy4xMiA1OTguMjcgMjEzLjE5IDYwMi40MCAyMDkuMzAgNjA0LjM0QzIwNS40MiA2MDYuMjkgMTk4LjcyIDYxMC43MCAxOTUuOTEgNjEyLjcxQzE5My4xMCA2MTQuNzIgMTkwLjIyIDYxNi41MyAxODUuODcgNjIxLjA4QzE4MS41MSA2MjUuNjQgMTYzLjg2IDY0Ni4zNyAxNTkuNjQgNjUwLjY2QzE1NS40MiA2NTQuOTQgMTUzLjMzIDY1NS4zOSAxNTAuNzIgNjU2Ljc5QzE0OC4xMCA2NTguMjAgMTQwLjk2IDY2MS42NCAxMzcuODggNjYyLjM3QzEzNC44MCA2NjMuMTEgMTI2Ljg2IDY2My4xMyAxMjUuMDUgNjYyLjkzQzEyMy4yNCA2NjIuNzMgMTIzLjgyIDY2MS4xNyAxMjIuODIgNjYwLjcwQzEyMS44MSA2NjAuMjMgMTE3LjgyIDY1OS44MyAxMTYuNjggNjU5LjAyQzExNS41NCA2NTguMjIgMTEzLjczIDY1NS40OCAxMTMuMzMgNjU0LjAwQzExMi45MyA2NTIuNTMgMTEzLjAwIDY0OC4yMiAxMTMuMzMgNjQ2Ljc1QzExMy42NyA2NDUuMjggMTE1LjEyIDY0Mi43MyAxMTYuMTIgNjQxLjczQzExNy4xMyA2NDAuNzIgMTIwLjcwIDYzOS41OSAxMjEuNzAgNjM4LjM4QzEyMi43MSA2MzcuMTcgMTIzLjE1IDYzMi45NiAxMjQuNDkgNjMxLjY4QzEyNS44MyA2MzAuNDEgMTMwLjY1IDYyOC4zMSAxMzIuODYgNjI3Ljc4QzEzNS4wNyA2MjcuMjQgMTM5Ljg5IDYyOC40MyAxNDIuOTAgNjI3LjIyQzE0NS45MiA2MjYuMDIgMTUyLjY4IDYyMi4wOSAxNTcuOTcgNjE3Ljc0QzE2My4yNiA2MTMuMzggMTgyLjEwIDU5Ni4wNCAxODYuOTggNTkwLjk1QzE5MS44NyA1ODUuODYgMTk2LjY5IDU3Ny43NCAxOTguNzAgNTc1LjMzQzIwMC43MSA1NzIuOTIgMjAyLjM4IDU3MS42NyAyMDMuNzIgNTcwLjg3QzIwNS4wNiA1NzAuMDYgMjA3LjQ1IDU2OC44MyAyMDkuODYgNTY4LjYzQzIxMi4yNyA1NjguNDMgMjIxLjQwIDU2OS4yNiAyMjMuODEgNTY5LjE5QzIyNi4yMiA1NjkuMTIgMjI3LjI3IDU2OS4wMSAyMjkuOTUgNTY4LjA4QzIzMi42MiA1NjcuMTQgMjQ1Ljk5IDU2Mi4yNSAyNDYuMTMgNTYxLjM4QzI0Ni4yNiA1NjAuNTEgMjM3LjI5IDU2MS42OSAyMzEuMDYgNTYwLjgyQzIyNC44NCA1NTkuOTUgMjAxLjQwIDU1NC44MCAxOTQuMjQgNTU0LjEzQzE4Ny4wNyA1NTMuNDYgMTc1Ljk4IDU1NC41NyAxNzEuMzYgNTU1LjI0QzE2Ni43NCA1NTUuOTEgMTU5LjI5IDU1OC4zNyAxNTUuNzQgNTU5LjcxQzE1Mi4xOSA1NjEuMDUgMTQ3LjIxIDU2Mi43OSAxNDEuNzkgNTY2LjQwQzEzNi4zNiA1NzAuMDIgMTE2LjEwIDU4Ni4xNSAxMTAuNTQgNTg5Ljg0QzEwNC45OCA1OTMuNTIgOTguOTYgNTk1LjgyIDk1LjQ4IDU5Ny4wOUM5MS45OSA1OTguMzYgODQuMzQgNjAwLjA0IDgxLjUzIDYwMC40NEM3OC43MSA2MDAuODQgNzMuOTIgNjAwLjcxIDcyLjA0IDYwMC40NEM3MC4xNyA2MDAuMTcgNjcuMTEgNTk5LjA4IDY1LjkwIDU5OC4yMUM2NC43MCA1OTcuMzQgNjIuNTMgNTk0LjM5IDYyLjAwIDU5My4xOEM2MS40NiA1OTEuOTggNjEuMzEgNTg5LjM3IDYxLjQ0IDU4OC4xNkM2MS41NyA1ODYuOTYgNjIuMjQgNTg0LjQ4IDYzLjExIDU4My4xNEM2My45OCA1ODEuODAgNjcuNDIgNTc4LjAxIDY4LjY5IDU3Ny4wMEM2OS45NyA1NzYuMDAgNzIuNzEgNTc1Ljc4IDczLjcyIDU3NC43N0M3NC43MiA1NzMuNzcgNzUuNzkgNTY5Ljc3IDc3LjA2IDU2OC42M0M3OC4zNCA1NjcuNTAgODEuMzcgNTY1LjgyIDg0LjMyIDU2NS4yOUM4Ny4yNiA1NjQuNzUgOTguNTMgNTY0Ljc3IDEwMS42MSA1NjQuMTdDMTA0LjY5IDU2My41NyAxMDIuNzUgNTY1LjM1IDEwOS45OCA1NjAuMjZDMTE3LjIxIDU1NS4xOCAxNTQuMTEgNTI2LjUyIDE2MS44NyA1MjEuNzZDMTY5LjY0IDUxNy4wMSAxNzEuNjkgNTIwLjI1IDE3NC43MSA1MjAuNjVDMTc3LjcyIDUyMS4wNSAxODMuMzcgNTI0LjQ0IDE4Ni45OCA1MjUuMTFDMTkwLjYwIDUyNS43OCAyMDAuMDIgNTI2LjUwIDIwNC44NCA1MjYuMjNDMjA5LjY2IDUyNS45NiAyMjEuODcgNTI0LjE1IDIyNy4xNiA1MjIuODhDMjMyLjQ1IDUyMS42MSAyNDUuMTcgNTE3LjUwIDI0OC45MiA1MTUuNjNDMjUyLjY3IDUxMy43NSAyNTUuODYgNTExLjQxIDI1OC40MCA1MDcuMjZDMjYwLjk1IDUwMy4xMSAyNjcuNzggNDg1LjU5IDI3MC4xMiA0ODEuMDNDMjcyLjQ2IDQ3Ni40OCAyNzUuNzkgNDcxLjkzIDI3Ny45MyA0NjkuMzJDMjgwLjA3IDQ2Ni43MCAyODUuNTcgNDYxLjIxIDI4Ny45OCA0NTkuMjdDMjkwLjM5IDQ1Ny4zMyAyOTcuNjIgNDUzLjk0IDI5OC4wMiA0NTMuMTNDMjk4LjQyIDQ1Mi4zMyAyOTUuMDEgNDUyLjMxIDI5MS4zMiA0NTIuNThDMjg3LjY0IDQ1Mi44NCAyNzUuMzcgNDU0LjA5IDI2Ny4zMyA0NTUuMzdDMjU5LjMwIDQ1Ni42NCAyMzIuMDAgNDYxLjk3IDIyNC4zNyA0NjMuMThDMjE2LjczIDQ2NC4zOCAyMTAuNjkgNDY1LjA3IDIwMy43MiA0NjUuNDFDMTk2Ljc2IDQ2NS43NCAxNzQuMzcgNDY2LjE3IDE2Ni4zNCA0NjUuOTdDMTU4LjMwIDQ2NS43NyAxNDUuMzQgNDY0Ljk0IDEzNi43NyA0NjMuNzRDMTI4LjIwIDQ2Mi41MyAxMDIuNzUgNDU4LjAwIDk0LjkyIDQ1NS45MkM4Ny4wOCA0NTMuODUgNzUuMzAgNDQ4LjQ1IDcxLjQ4IDQ0Ni40NEM2Ny42NyA0NDQuNDMgNjQuMzIgNDQwLjUyIDYzLjExIDQzOS4xOUM2MS45MSA0MzcuODUgNjEuNTEgNDM2LjIyIDYxLjQ0IDQzNS4yOEM2MS4zNyA0MzQuMzQgNjEuODkgNDMyLjI0IDYyLjU2IDQzMS4zN0M2My4yMyA0MzAuNTAgNjQuOTQgNDI4LjcwIDY3LjAyIDQyOC4wM0M2OS4xMCA0MjcuMzYgNzcuMTEgNDI2LjA2IDc5Ljg1IDQyNS43OUM4Mi42MCA0MjUuNTMgODMuMDcgNDI1LjEyIDg5LjkwIDQyNS43OUM5Ni43MyA0MjYuNDYgMTI3LjY2IDQzMC41MCAxMzYuNzcgNDMxLjM3QzE0NS44NyA0MzIuMjQgMTU3LjgxIDQzMi45MSAxNjUuNzggNDMzLjA1QzE3My43NSA0MzMuMTggMTkyLjg1IDQzMy4wOSAyMDMuMTYgNDMyLjQ5QzIxMy40OCA0MzEuODkgMjM4LjUyIDQyOC40OSAyNTEuNzEgNDI4LjAzQzI2NC45MCA0MjcuNTYgMzA0LjU4IDQyOC41OCAzMTMuMDggNDI4LjU4QzMyMS41OSA0MjguNTggMzE5Ljc2IDQyOS4xNiAzMjIuNTcgNDI4LjAzQzMyNS4zOCA0MjYuODkgMzMyLjg0IDQyMC45MSAzMzYuNTIgNDE5LjEwQzM0MC4yMCA0MTcuMjkgMzQ5LjkxIDQxNC4wMyAzNTMuMjYgNDEyLjk2QzM1Ni42MSA0MTEuODkgMzYwLjgwIDQxMC43NyAzNjQuNDIgNDEwLjE3QzM2OC4wMyA0MDkuNTcgMzc4LjMwIDQwOC4xNCAzODMuMzkgNDA3Ljk0QzM4OC40OCA0MDcuNzQgMzk2LjE4IDQwNy40OSA0MDYuODIgNDA4LjUwQzQxNy40NyA0MDkuNTAgNDU5LjA1IDQxNS4zMCA0NzIuMTEgNDE2LjMxQzQ4NS4xNiA0MTcuMzEgNTA1LjMyIDQxNy4yNyA1MTUuNjMgNDE2Ljg3QzUyNS45NCA0MTYuNDYgNTUwLjk0IDQxMy45MCA1NTguMDMgNDEyLjk2QzU2NS4xMyA0MTIuMDIgNTY5LjU1IDQxMC42NiA1NzQuNzcgNDA5LjA1QzU3OS45OSA0MDcuNDUgNTk2LjMzIDQwMS4wNCA2MDEuNTUgMzk5LjU3QzYwNi43OCAzOTguMTAgNjE0LjA3IDM5Ny4wNSA2MTguMjkgMzk2Ljc4QzYyMi41MSAzOTYuNTEgNjMxLjgyIDM5Ni43MyA2MzYuNzEgMzk3LjM0QzY0MS41OSAzOTcuOTQgNjU0LjgxIDQwMS4yNyA2NTkuMDIgNDAxLjgwQzY2My4yNCA0MDIuMzQgNjcwLjA1IDQwMS45NCA2NzEuODYgNDAxLjgwQzY3My42NyA0MDEuNjcgNjc0LjgzIDQwMS4yMiA2NzQuMDkgNDAwLjY5QzY3My4zNSA0MDAuMTUgNjY3LjE5IDM5OC4yNyA2NjUuNzIgMzk3LjM0QzY2NC4yNSAzOTYuNDAgNjU4LjYwIDM5NC4yOCA2NjEuODEgMzkyLjg3QzY2NS4wMyAzOTEuNDcgNjg0LjU0IDM4Ni40MiA2OTIuNTAgMzg1LjYyQzcwMC40NyAzODQuODIgNzI1LjMzIDM4Ni45OCA3MjguMjEgMzg2LjE4QzczMS4wOSAzODUuMzcgNzE5LjE3IDM4MC45MyA3MTYuNTAgMzc4LjkyQzcxMy44MiAzNzYuOTIgNzA3LjU3IDM3MS4xOCA3MDUuODkgMzY5LjQ0QzcwNC4yMiAzNjcuNzAgNzAyLjg4IDM2NS40OSA3MDIuNTUgMzY0LjQyQzcwMi4yMSAzNjMuMzUgNzAwLjIzIDM2MC40NCA3MDMuMTAgMzYwLjUxWiIvPjwvc3ZnPg==) center / contain no-repeat;}
+.badge.inv{background:var(--ink);} .badge.inv i{background:var(--hero);}
 
-/* ── THE COVER ─────────────────────────────────────────────────────
-   A hero-coloured CARD inside the column, not a slab bleeding to the
-   edges. Every other thing on this page is a filled block on the grey,
-   so the cover is one too — same system, not a species bolted on top.
-   It also means there is no "where does the yellow stop" problem: it
-   stops like every other card does.
-   The badge inverts inside it, because a yellow square on yellow is
-   not a badge.                                                      */
-.top{padding:calc(var(--g5) + env(safe-area-inset-top,0px)) var(--edge) 0;}
+/* one screen at a time */
+.scr{display:none;flex:1;padding:var(--g5) var(--edge) 152px;}
+.scr.on{display:block;}
+
+/* the cover */
 .cover{background:var(--hero);color:var(--on-hero);border-radius:var(--r);padding:var(--g5);}
-.cover .badge{background:var(--ink);}
-.cover .badge i{background:var(--hero);}
-h1{font-weight:500;letter-spacing:-0.05em;word-spacing:0.06em;line-height:0.95;
-  font-size:clamp(1.9rem,8vw,2.5rem);margin:var(--g5) 0 0;}
-.cover .sub{font-weight:400;letter-spacing:-0.025em;font-size:1.125rem;
-  line-height:1.35;margin:var(--g3) 0 0;max-width:24em;opacity:0.72;}
+.cover h1{font-weight:500;letter-spacing:-0.05em;line-height:0.95;
+  font-size:clamp(1.9rem,8vw,2.4rem);margin:var(--g5) 0 0;}
+.cover .sub{font-size:1.125rem;line-height:1.35;margin:var(--g3) 0 0;opacity:0.72;
+  letter-spacing:-0.025em;}
+.intro{background:var(--surface);border-radius:var(--r);padding:var(--g5);margin-top:var(--g3);}
+.intro p{margin:0 0 var(--g4);font-size:17px;line-height:1.55;}
+.intro p:last-child{margin-bottom:0;}
+.intro .how{background:var(--panel);border-radius:var(--r);padding:var(--g4);margin-top:var(--g5);}
+.intro .how b{display:block;margin-bottom:var(--g2);}
+.intro .how p{font-size:15px;line-height:1.6;color:var(--ink-2);margin:0;}
 
-.page{padding:var(--g5) var(--edge) 192px;}
+/* a question screen */
+.eyebrow{font-weight:600;font-size:14px;color:var(--hero-ink);}
+.qn{font-weight:500;letter-spacing:-0.03em;font-size:1.3rem;line-height:1.3;
+  margin:var(--g3) 0 0;}
+.hint{font-size:15px;color:var(--ink-2);line-height:1.5;margin:var(--g3) 0 0;}
+.fld{margin-top:var(--g5);}
+textarea,input[type=text]{width:100%;font:inherit;font-size:16px;line-height:1.55;color:var(--ink);
+  background:var(--surface);border:1.5px solid transparent;border-radius:var(--r);
+  padding:var(--g4);resize:none;display:block;}
+textarea{min-height:192px;}
+input[type=text]{height:var(--tap);padding:0 var(--g4);}
+textarea:focus,input[type=text]:focus{outline:none;border-color:var(--hero-deep);}
+::placeholder{color:var(--ink-2);}
 
-/* the intro. Talk volume — it is read in sentences — in a filled block,
-   like every other block of content on the grey. */
-.intro{background:var(--surface);border-radius:var(--r);padding:var(--g5);}
-.intro p{margin:0 0 var(--g4);font-size:17px;line-height:1.55;max-width:34em;}
-.intro p.who{margin:var(--g5) 0 0;font-size:14px;color:var(--ink-2);}
-
-/* sections. 48 above, 16 below — the 3:1 that makes a heading belong
-   to what follows it. */
-h2{font-weight:500;letter-spacing:-0.05em;font-size:1.375rem;line-height:1;
-  margin:var(--g7) 0 var(--g4);}
-h2 .of{color:var(--ink-2);font-size:14px;font-weight:500;letter-spacing:0;margin-left:var(--g3);}
-
-/* a question */
-.q{background:var(--surface);border-radius:var(--r);padding:var(--g5);margin-bottom:var(--g3);}
-.q .no{font-weight:600;font-size:14px;color:var(--ink-2);display:block;margin-bottom:var(--g2);}
-.q.done .no{color:var(--hero-ink);}
-.q .ask{font-weight:500;font-size:1.0625rem;line-height:1.45;margin:0 0 var(--g4);max-width:34em;}
-.q .hint{font-size:14px;color:var(--ink-2);margin:calc(var(--g4) * -1) 0 var(--g4);
-  line-height:1.5;max-width:34em;}
-.q textarea,.q input[type=text]{width:100%;font:inherit;font-size:16px;line-height:1.55;
-  color:var(--ink);background:var(--panel);border:1.5px solid transparent;border-radius:var(--r);
-  padding:var(--g3) var(--g4);resize:none;display:block;}
-.q textarea{min-height:144px;overflow:hidden;}
-.q textarea.short{min-height:96px;}
-.q input[type=text]{height:var(--tap);padding:0 var(--g4);}
-.q textarea:focus,.q input[type=text]:focus{outline:none;border-color:var(--hero-deep);}
-.q ::placeholder{color:var(--ink-2);}
-
-/* the 1-10. Two rows of five: ten across a 320px phone gives each number
-   about 28px, and a thumb needs 44. Five across gives 56. */
-.scale{display:grid;grid-template-columns:repeat(5,1fr);gap:var(--g2);margin-bottom:var(--g3);}
+.scale{display:grid;grid-template-columns:repeat(5,1fr);gap:var(--g2);margin-top:var(--g5);}
 .scale button{min-width:0;font:inherit;font-size:16px;font-weight:500;height:var(--tap);padding:0;
-  border-radius:var(--r);border:1.5px solid var(--ink-2);background:transparent;
+  border-radius:var(--r);border:1.5px solid var(--ink-2);background:var(--surface);
   color:var(--ink);cursor:pointer;}
 .scale button[aria-pressed="true"]{background:var(--ink);color:var(--paper);
   border-color:var(--ink);font-weight:600;}
 .ends{display:flex;justify-content:space-between;gap:var(--g3);font-size:14px;color:var(--ink-2);
-  margin:0 0 var(--g4);line-height:1.4;}
+  margin-top:var(--g3);line-height:1.4;}
 .ends span{max-width:48%;} .ends span:last-child{text-align:right;}
-
-/* choices — ink, never the hero. the hero means "the action". */
-.opts{display:flex;flex-wrap:wrap;gap:var(--g2);margin-bottom:var(--g3);}
+.opts{display:flex;flex-wrap:wrap;gap:var(--g2);margin-top:var(--g5);}
 .opts button{font:inherit;font-size:15px;font-weight:500;min-height:var(--tap);padding:0 var(--g4);
-  border-radius:var(--btn-r);border:1.5px solid var(--ink-2);background:transparent;
-  color:var(--ink);cursor:pointer;letter-spacing:0;}
+  border-radius:var(--btn-r);border:1.5px solid var(--ink-2);background:var(--surface);
+  color:var(--ink);cursor:pointer;}
 .opts button[aria-pressed="true"]{background:var(--ink);color:var(--paper);
   border-color:var(--ink);font-weight:600;}
-.more{margin-top:var(--g3);}
 
-/* the end. NOT yellow — the cover is yellow, and two hero blocks on one
-   page means neither is an event. */
-.close{background:var(--ink);color:var(--paper);border-radius:var(--r);
-  padding:var(--g5);margin-top:var(--g7);}
-.close .k{font-weight:600;font-size:14px;opacity:0.6;}
-.close p{font-size:1.125rem;line-height:1.45;margin:var(--g3) 0 0;font-weight:400;
-  letter-spacing:-0.02em;max-width:32em;}
+/* the done screen */
+.done h2{font-weight:500;letter-spacing:-0.05em;font-size:1.6rem;line-height:1.05;margin:var(--g5) 0 0;}
+.done p{font-size:17px;line-height:1.55;margin:var(--g4) 0 0;}
+.blanks{background:var(--panel);border-radius:var(--r);padding:var(--g4);margin-top:var(--g5);
+  font-size:15px;line-height:1.6;}
+.blanks b{display:block;margin-bottom:var(--g2);}
+.blanks button{border:0;background:none;font:inherit;font-size:15px;font-weight:600;
+  color:var(--ink);cursor:pointer;padding:var(--g2) 0 0;text-decoration:underline;}
 
-.sendoff{margin-top:var(--g7);}
-.sendoff h3{font-weight:500;letter-spacing:-0.05em;font-size:1.375rem;line-height:1;
-  margin:0 0 var(--g4);}
-.steps{list-style:none;padding:0;margin:0;counter-reset:s;}
-.steps li{position:relative;padding-left:var(--g6);margin-bottom:var(--g4);line-height:1.55;
-  font-size:16px;counter-increment:s;max-width:34em;}
-.steps li:before{content:counter(s);position:absolute;left:0;top:2px;width:var(--g5);height:var(--g5);
-  border-radius:var(--r);background:var(--hero);color:var(--on-hero);font-size:13px;font-weight:600;
-  display:grid;place-items:center;}
-.note{background:var(--panel);border-radius:var(--r);padding:var(--g4);font-size:15px;
-  margin-top:var(--g5);line-height:1.6;max-width:34em;}
-.note b{display:block;}
+/* the sending screen */
+.sendq{font-weight:500;letter-spacing:-0.03em;font-size:1.15rem;line-height:1.35;
+  margin:var(--g3) 0 0;color:var(--ink-2);}
+.sendbox{background:var(--surface);border-radius:var(--r);padding:var(--g4);margin-top:var(--g4);
+  font-size:16px;line-height:1.55;white-space:pre-wrap;max-height:44vh;overflow:auto;}
+.tick{color:var(--go);font-weight:600;font-size:15px;margin-top:var(--g4);}
 
-/* the bar — the ONE fixed region. It says where you are, which the cover
-   cannot, and it stops at the column edge like everything else. */
+/* the bar */
 .bar{position:fixed;left:0;right:0;bottom:0;z-index:9;transition:transform .18s ease;}
-/* While the keyboard is up she is writing, not sending. The bar gets out
-   of the way — on a phone it was half the visible screen. */
-.bar.away{transform:translateY(110%);}
+.bar.away{transform:translateY(115%);}
 .bar .in{max-width:var(--col);margin:0 auto;background:var(--surface);
-  display:flex;align-items:center;gap:var(--g4);
   padding:var(--g3) var(--edge) calc(var(--g3) + env(safe-area-inset-bottom,0px));}
-.bar .badge{width:var(--g6);height:var(--g6);}
-.bar .prog{flex:1;min-width:0;}
-.bar .pt{font-size:14px;color:var(--ink-2);display:flex;justify-content:space-between;gap:var(--g3);}
-.bar .pt .where{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.bar .pt .sv{color:var(--go);font-weight:600;opacity:0;transition:opacity .25s;flex:none;}
-.bar .pt .sv.on{opacity:1;}
-.bar .track{height:var(--g1);border-radius:2px;background:var(--panel);margin-top:var(--g2);
-  overflow:hidden;}
-.bar .fill{height:100%;background:var(--hero);width:0;border-radius:2px;transition:width .3s;}
-.bar .btn{font:inherit;font-size:1rem;font-weight:500;height:var(--tap);padding:0 var(--g5);
+.track{height:var(--g1);border-radius:2px;background:var(--panel);overflow:hidden;}
+.fill{height:100%;background:var(--hero);width:0;border-radius:2px;transition:width .25s;}
+.row{display:flex;align-items:center;gap:var(--g3);margin-top:var(--g3);}
+.count{flex:1;font-size:14px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.btn{font:inherit;font-size:1rem;font-weight:500;height:var(--tap);padding:0 var(--g5);
   border-radius:var(--btn-r);border:0;background:var(--hero);color:var(--on-hero);cursor:pointer;
-  white-space:nowrap;flex:none;text-decoration:none;display:grid;place-items:center;}
-.bar .btn[disabled]{opacity:0.35;cursor:default;}
-.bar .again{border:0;background:none;font:inherit;font-size:14px;font-weight:600;color:var(--ink);
-  cursor:pointer;padding:var(--g2) 0;flex:none;white-space:nowrap;}
-.bar .again[disabled]{opacity:0.35;cursor:default;}
-@media(max-width:560px){
-  .bar .in{flex-wrap:wrap;row-gap:var(--g3);}
-  .bar .badge{order:1;} .bar .prog{flex:1;order:2;}
-  .bar .again{order:3;} .bar .btn{order:4;flex:1 1 100%;}
-}
+  white-space:nowrap;flex:none;display:grid;place-items:center;text-decoration:none;}
+.btn[disabled]{opacity:0.35;cursor:default;}
+.back{border:0;background:none;font:inherit;font-size:15px;font-weight:600;color:var(--ink);
+  cursor:pointer;padding:var(--g2) 0;flex:none;}
 </style>
 </head>
 <body>
 <div class="shell">
 
-<header class="top">
+<section class="scr on" data-step="0">
   <div class="cover">
-    <span class="badge" role="img" aria-label="Benjamin Throssell"><i></i></span>
+    <span class="badge inv" style="width:40px;height:40px" role="img" aria-label="Benjamin Throssell"><i></i></span>
     <h1>Before we meet&hellip;</h1>
     <p class="sub">Sixteen questions for a powerful call.</p>
   </div>
-</header>
-
-<div class="page">
-
   <div class="intro">
     <p>Our call approaches, and we want it to be all action!</p>
     <p>So, we&rsquo;re gonna do some ground work now. I&rsquo;ve got sixteen questions for you, and your answers will mean we can do some real work when we meet instead of running a Q+A.</p>
     <p>Answer however you like &mdash; dot points, an essay, whatever falls out. There are no right answers, and there are no answers too long. Just give me the raw, unvarnished truth. The better I understand where you are, the better I can plan for where we&rsquo;re going.</p>
-    <p class="who">It saves as you go, so you can put your phone down and come back.</p>
-  </div>
-
-  <h2>What we&rsquo;re playing for<span class="of">Five questions</span></h2>
-  <div class="q" data-q="1">
-    <span class="no">Question 1</span>
-    <p class="ask">How much headspace does your body take up right now?</p>
-    <div class="scale" data-scale="q1n"><button type="button" aria-pressed="false">1</button><button type="button" aria-pressed="false">2</button><button type="button" aria-pressed="false">3</button><button type="button" aria-pressed="false">4</button><button type="button" aria-pressed="false">5</button><button type="button" aria-pressed="false">6</button><button type="button" aria-pressed="false">7</button><button type="button" aria-pressed="false">8</button><button type="button" aria-pressed="false">9</button><button type="button" aria-pressed="false">10</button></div>
-    <div class="ends"><span>1 &mdash; barely think about it</span><span>10 &mdash; it&rsquo;s on my mind constantly and it pisses me off</span></div>
-    <textarea class="short" data-k="q1" placeholder="Anything you want to say about that number."></textarea>
-  </div>
-  <div class="q" data-q="2">
-    <span class="no">Question 2</span>
-    <p class="ask">What&rsquo;s the end picture we&rsquo;re playing for? If this goes exactly to plan, what does your body look like when we&rsquo;re done?</p>
-    <p class="hint">Take your time with this one.</p>
-    <textarea data-k="q2"></textarea>
-  </div>
-  <div class="q" data-q="3">
-    <span class="no">Question 3</span>
-    <p class="ask">And once you&rsquo;re there &mdash; how much of your life are you expecting to spend keeping it? What would be too much?</p>
-    <textarea data-k="q3"></textarea>
-  </div>
-  <div class="q" data-q="4">
-    <span class="no">Question 4</span>
-    <p class="ask">If I could instantly change three things about your body, what would they be?</p>
-    <p class="hint">What bothers you most, and would make the biggest, fastest improvement to how you feel?</p>
-    <textarea data-k="q4"></textarea>
-  </div>
-  <div class="q" data-q="5">
-    <span class="no">Question 5</span>
-    <p class="ask">Send me a photo of a body that looks like what you&rsquo;re after. This one&rsquo;s compulsory with all my clients &mdash; I need to see exactly what you&rsquo;re picturing rather than guess at what you mean.</p>
-    <p class="hint">Paste a link to it here, or attach it to your message when you send me your answers.</p>
-    <input type="text" data-k="q5" placeholder="Paste the link here">
-  </div>
-
-  <h2>The story so far<span class="of">Three questions</span></h2>
-  <div class="q" data-q="6">
-    <span class="no">Question 6</span>
-    <p class="ask">Why now? What&rsquo;s changed that&rsquo;s got you moving on this?</p>
-    <textarea data-k="q6"></textarea>
-  </div>
-  <div class="q" data-q="7">
-    <span class="no">Question 7</span>
-    <p class="ask">What&rsquo;s in the way? If this doesn&rsquo;t work, what&rsquo;ll have been the reason?</p>
-    <p class="hint">Give me three. Anything counts &mdash; your habits, your schedule, your life responsibilities, and the things you know you mess up sometimes.</p>
-    <textarea data-k="q7"></textarea>
-  </div>
-  <div class="q" data-q="8">
-    <span class="no">Question 8</span>
-    <p class="ask">What have you tried before, and what happened? Did you succeed? How long did you maintain those results?</p>
-    <p class="hint">Detail your most recent attempt, and if you have time, your full history.</p>
-    <textarea data-k="q8"></textarea>
-  </div>
-
-  <h2>Your kitchen<span class="of">Three questions</span></h2>
-  <div class="q" data-q="9">
-    <span class="no">Question 9</span>
-    <p class="ask">Who does the cooking and the shopping, and who are you cooking for?</p>
-    <textarea class="short" data-k="q9"></textarea>
-  </div>
-  <div class="q" data-q="10">
-    <span class="no">Question 10</span>
-    <p class="ask">If you wanted to eat something different to everyone else at dinner &mdash; is that fine, awkward, or a fight?</p>
-    <div class="opts" data-pick="q10pick">
-      <button type="button" aria-pressed="false">Fine</button>
-      <button type="button" aria-pressed="false">Awkward</button>
-      <button type="button" aria-pressed="false">A fight</button>
-    </div>
-    <textarea class="short" data-k="q10" placeholder="And what makes it that?"></textarea>
-  </div>
-  <div class="q" data-q="11">
-    <span class="no">Question 11</span>
-    <p class="ask">Where does your eating usually fall apart? What time of day, and what&rsquo;s normally going on when it does?</p>
-    <textarea data-k="q11"></textarea>
-  </div>
-
-  <h2>Your week<span class="of">Two questions</span></h2>
-  <div class="q" data-q="12">
-    <span class="no">Question 12</span>
-    <p class="ask">Forge runs three to four sessions a week. Is there anything in how your week is built that&rsquo;d get in the way of doing them regularly?</p>
-    <textarea data-k="q12"></textarea>
-  </div>
-  <div class="q" data-q="13">
-    <span class="no">Question 13</span>
-    <p class="ask">And past that &mdash; how crazy would life have to get for you to miss a session you&rsquo;d committed to?</p>
-    <textarea class="short" data-k="q13"></textarea>
-  </div>
-
-  <h2>Tracking<span class="of">One question</span></h2>
-  <div class="q" data-q="14">
-    <span class="no">Question 14</span>
-    <p class="ask">Have you tracked food before? If you have &mdash; did it work, was it confusing or simple enough, and what made you stop?</p>
-    <div class="opts" data-pick="q14pick" data-gate="q14more">
-      <button type="button" aria-pressed="false">Yes</button>
-      <button type="button" aria-pressed="false">No, never</button>
-    </div>
-    <div class="more" id="q14more" hidden>
-      <textarea data-k="q14" placeholder="Did it work? Was it confusing or simple enough? What made you stop?"></textarea>
+    <div class="how">
+      <b>How this works</b>
+      <p>One question at a time. Answer all sixteen first &mdash; it saves as you go, so you can put your phone down and come back. Then at the end I&rsquo;ll walk you through sending them to me in Discord, one at a time. Takes a couple of minutes.</p>
     </div>
   </div>
+</section>
 
-  <h2>What&rsquo;s on your mind<span class="of">Two questions</span></h2>
-  <div class="q" data-q="15">
-    <span class="no">Question 15</span>
-    <p class="ask">Any questions, concerns or fears about this &mdash; whether it&rsquo;ll work for you, or whether you&rsquo;ve got what it takes? I&rsquo;d rather hear them now than have you sitting on them.</p>
-    <textarea data-k="q15"></textarea>
-  </div>
-  <div class="q" data-q="16">
-    <span class="no">Question 16</span>
-    <p class="ask">What&rsquo;s your biggest burning question about food or training &mdash; the thing you&rsquo;ve never been sure about and want a straight answer on?</p>
-    <textarea data-k="q16"></textarea>
-  </div>
+<section class="scr" data-step="1">
+  <div class="eyebrow">What we're playing for</div>
+  <h2 class="qn">How much headspace does your body take up right now?</h2>
+  <div class="scale" data-scale="q1n"><button type="button" aria-pressed="false">1</button><button type="button" aria-pressed="false">2</button><button type="button" aria-pressed="false">3</button><button type="button" aria-pressed="false">4</button><button type="button" aria-pressed="false">5</button><button type="button" aria-pressed="false">6</button><button type="button" aria-pressed="false">7</button><button type="button" aria-pressed="false">8</button><button type="button" aria-pressed="false">9</button><button type="button" aria-pressed="false">10</button></div><div class="ends"><span>1 &mdash; barely think about it</span><span>10 &mdash; on my mind constantly, and it pisses me off</span></div><div class="fld"><textarea data-k="q1" placeholder="Anything you want to say about that number." style="min-height:96px"></textarea></div>
+</section><section class="scr" data-step="2">
+  <div class="eyebrow">What we're playing for</div>
+  <h2 class="qn">What&rsquo;s the end picture we&rsquo;re playing for? If this goes exactly to plan, what does your body look like when we&rsquo;re done?</h2><p class="hint">Take your time with this one.</p>
+  <div class="fld"><textarea data-k="q2"></textarea></div>
+</section><section class="scr" data-step="3">
+  <div class="eyebrow">What we're playing for</div>
+  <h2 class="qn">And once you&rsquo;re there &mdash; how much of your life are you expecting to spend keeping it? What would be too much?</h2>
+  <div class="fld"><textarea data-k="q3"></textarea></div>
+</section><section class="scr" data-step="4">
+  <div class="eyebrow">What we're playing for</div>
+  <h2 class="qn">If I could instantly change three things about your body, what would they be?</h2><p class="hint">What bothers you most, and would make the biggest, fastest improvement to how you feel?</p>
+  <div class="fld"><textarea data-k="q4"></textarea></div>
+</section><section class="scr" data-step="5">
+  <div class="eyebrow">What we're playing for</div>
+  <h2 class="qn">Send me a photo of a body that looks like what you&rsquo;re after. This one&rsquo;s compulsory with all my clients &mdash; I need to see exactly what you&rsquo;re picturing rather than guess at what you mean.</h2><p class="hint">Paste a link to it here, or just attach the photo when you send me this one.</p>
+  <div class="fld"><input type="text" data-k="q5" placeholder="Paste the link here"></div>
+</section><section class="scr" data-step="6">
+  <div class="eyebrow">The story so far</div>
+  <h2 class="qn">Why now? What&rsquo;s changed that&rsquo;s got you moving on this?</h2>
+  <div class="fld"><textarea data-k="q6"></textarea></div>
+</section><section class="scr" data-step="7">
+  <div class="eyebrow">The story so far</div>
+  <h2 class="qn">What&rsquo;s in the way? If this doesn&rsquo;t work, what&rsquo;ll have been the reason?</h2><p class="hint">Give me three. Anything counts &mdash; your habits, your schedule, your life responsibilities, and the things you know you mess up sometimes.</p>
+  <div class="fld"><textarea data-k="q7"></textarea></div>
+</section><section class="scr" data-step="8">
+  <div class="eyebrow">The story so far</div>
+  <h2 class="qn">What have you tried before, and what happened? Did you succeed? How long did you maintain those results?</h2><p class="hint">Detail your most recent attempt, and if you have time, your full history.</p>
+  <div class="fld"><textarea data-k="q8"></textarea></div>
+</section><section class="scr" data-step="9">
+  <div class="eyebrow">Your kitchen</div>
+  <h2 class="qn">Who does the cooking and the shopping, and who are you cooking for?</h2>
+  <div class="fld"><textarea data-k="q9"></textarea></div>
+</section><section class="scr" data-step="10">
+  <div class="eyebrow">Your kitchen</div>
+  <h2 class="qn">If you wanted to eat something different to everyone else at dinner &mdash; is that fine, awkward, or a fight?</h2><p class="hint">And what makes it that?</p>
+  <div class="opts" data-pick="q10pick"><button type="button" aria-pressed="false">Fine</button><button type="button" aria-pressed="false">Awkward</button><button type="button" aria-pressed="false">A fight</button></div><div class="fld"><textarea data-k="q10" placeholder="And what makes it that?" style="min-height:120px"></textarea></div>
+</section><section class="scr" data-step="11">
+  <div class="eyebrow">Your kitchen</div>
+  <h2 class="qn">Where does your eating usually fall apart? What time of day, and what&rsquo;s normally going on when it does?</h2>
+  <div class="fld"><textarea data-k="q11"></textarea></div>
+</section><section class="scr" data-step="12">
+  <div class="eyebrow">Your week</div>
+  <h2 class="qn">Forge runs three to four sessions a week. Is there anything in how your week is built that&rsquo;d get in the way of doing them regularly?</h2>
+  <div class="fld"><textarea data-k="q12"></textarea></div>
+</section><section class="scr" data-step="13">
+  <div class="eyebrow">Your week</div>
+  <h2 class="qn">And past that &mdash; how crazy would life have to get for you to miss a session you&rsquo;d committed to?</h2>
+  <div class="fld"><textarea data-k="q13"></textarea></div>
+</section><section class="scr" data-step="14">
+  <div class="eyebrow">Tracking</div>
+  <h2 class="qn">Have you tracked food before? If you have &mdash; did it work, was it confusing or simple enough, and what made you stop?</h2>
+  <div class="opts" data-pick="q14pick"><button type="button" aria-pressed="false">Yes</button><button type="button" aria-pressed="false">No, never</button></div><div class="fld"><textarea data-k="q14" placeholder="Did it work? Was it confusing or simple enough? What made you stop?"></textarea></div>
+</section><section class="scr" data-step="15">
+  <div class="eyebrow">What&rsquo;s on your mind</div>
+  <h2 class="qn">Any questions, concerns or fears about this &mdash; whether it&rsquo;ll work for you, or whether you&rsquo;ve got what it takes? I&rsquo;d rather hear them now than have you sitting on them.</h2>
+  <div class="fld"><textarea data-k="q15"></textarea></div>
+</section><section class="scr" data-step="16">
+  <div class="eyebrow">What&rsquo;s on your mind</div>
+  <h2 class="qn">What&rsquo;s your biggest burning question about food or training &mdash; the thing you&rsquo;ve never been sure about and want a straight answer on?</h2>
+  <div class="fld"><textarea data-k="q16"></textarea></div>
+</section>
 
-  <div class="close">
-    <div class="k">One more thing</div>
-    <p>And separately &mdash; send me your Macrofactor export tonight so I can read your week before we talk.</p>
+<section class="scr done" data-step="17">
+  <span class="badge" style="width:40px;height:40px"><i></i></span>
+  <h2>That&rsquo;s all sixteen.</h2>
+  <p>Now let&rsquo;s get them to me. I&rsquo;ll show you one answer at a time &mdash; hit the button, it copies that answer and opens Discord, you paste it in our channel and come back for the next one.</p>
+  <p>Don&rsquo;t worry about the order or the numbering. It&rsquo;s all handled.</p>
+  <div class="blanks" id="blanks" hidden>
+    <b>You left some blank</b>
+    <span id="blanklist"></span>
+    <button type="button" id="goback">Go back and fill them in</button>
   </div>
+</section>
 
-  <div class="sendoff">
-    <h3>Sending it to me</h3>
-    <ol class="steps">
-      <li>Hit <b>Copy my answers</b> at the bottom.</li>
-      <li>Open our channel in Discord and paste. If it says <b>Copy part 2</b> when you come back, hit it and paste that too.</li>
-      <li>Add your photo from question 5 to the same message, then send.</li>
-    </ol>
-    <div class="note">
-      <b>Your answers live on this phone, in this browser.</b>
-      Nothing is sent anywhere until you paste it yourself. Close the tab, take a call, come back tomorrow &mdash; it will all still be here. Just don&rsquo;t switch to a different phone before you send it.
-    </div>
-  </div>
-</div>
+<section class="scr" data-step="18">
+  <div class="eyebrow" id="sendhead">Sending 1 of 16</div>
+  <p class="sendq" id="sendq"></p>
+  <div class="sendbox" id="sendbox"></div>
+  <p class="tick" id="tick" hidden>Copied. Paste it in Discord, then come back.</p>
+</section>
+
+<section class="scr" data-step="19">
+  <span class="badge" style="width:40px;height:40px"><i></i></span>
+  <h2 style="font-weight:500;letter-spacing:-0.05em;font-size:1.6rem;line-height:1.05;margin:var(--g5) 0 0">Done. Thank you.</h2>
+  <p style="font-size:17px;line-height:1.55;margin:var(--g4) 0 0">That&rsquo;s everything I need. One last thing &mdash; send me your Macrofactor export tonight so I can read your week before we talk.</p>
+  <p style="font-size:17px;line-height:1.55;margin:var(--g4) 0 0">See you on the call.</p>
+</section>
+
 </div>
 
 <div class="bar">
   <div class="in">
-    <span class="badge"><i></i></span>
-    <div class="prog">
-      <div class="pt"><span class="where" id="ptxt">0 of 16 answered</span><span class="sv" id="sv">Saved</span></div>
-      <div class="track"><div class="fill" id="fill"></div></div>
+    <div class="track"><div class="fill" id="fill"></div></div>
+    <div class="row">
+      <button class="back" id="back" type="button" hidden>Back</button>
+      <span class="count" id="count"></span>
+      <button class="btn" id="next" type="button">Start</button>
+      <a class="btn" id="godiscord" href="#" target="_blank" rel="noopener" hidden>Copy &amp; open Discord</a>
     </div>
-    <button class="again" id="again" type="button" hidden>Copy again</button>
-    <button class="btn" id="copy" type="button">Copy my answers</button>
-    <a class="btn" id="open" href="#" target="_blank" rel="noopener" hidden>Open Discord</a>
   </div>
 </div>
 
 <script>
 (function(){
-  /* SWAP THIS for the real channel link and it opens straight there.
-     As it stands it opens Discord itself, which is right on a phone. */
-  var DISCORD = 'https://discord.com/channels/@me';
+  /* Swap for the real channel link and it opens straight there. */
+  var DISCORD='https://discord.com/channels/@me';
 
-  var KEY='bt-intake-v2', N=16;
+  var N=16, KEY='bt-intake-v3', QS={"1": "How much headspace does your body take up right now?", "2": "What’s the end picture we’re playing for? If this goes exactly to plan, what does your body look like when we’re done?", "3": "And once you’re there — how much of your life are you expecting to spend keeping it? What would be too much?", "4": "If I could instantly change three things about your body, what would they be?", "5": "Send me a photo of a body that looks like what you’re after. This one’s compulsory with all my clients — I need to see exactly what you’re picturing rather than guess at what you mean.", "6": "Why now? What’s changed that’s got you moving on this?", "7": "What’s in the way? If this doesn’t work, what’ll have been the reason?", "8": "What have you tried before, and what happened? Did you succeed? How long did you maintain those results?", "9": "Who does the cooking and the shopping, and who are you cooking for?", "10": "If you wanted to eat something different to everyone else at dinner — is that fine, awkward, or a fight?", "11": "Where does your eating usually fall apart? What time of day, and what’s normally going on when it does?", "12": "Forge runs three to four sessions a week. Is there anything in how your week is built that’d get in the way of doing them regularly?", "13": "And past that — how crazy would life have to get for you to miss a session you’d committed to?", "14": "Have you tracked food before? If you have — did it work, was it confusing or simple enough, and what made you stop?", "15": "Any questions, concerns or fears about this — whether it’ll work for you, or whether you’ve got what it takes? I’d rather hear them now than have you sitting on them.", "16": "What’s your biggest burning question about food or training — the thing you’ve never been sure about and want a straight answer on?"};
   function load(){ try{ return JSON.parse(localStorage.getItem(KEY)||'{}'); }catch(e){ return {}; } }
-  function save(d){ try{ localStorage.setItem(KEY,JSON.stringify(d)); }catch(e){} }
+  function save(){ try{ localStorage.setItem(KEY,JSON.stringify(data)); }catch(e){} }
   var data=load();
 
-  var sv=document.getElementById('sv'), svT;
-  function flash(){ sv.classList.add('on'); clearTimeout(svT);
-    svT=setTimeout(function(){sv.classList.remove('on');},1400); }
-  function grow(el){ if(el.tagName!=='TEXTAREA') return;
-    el.style.height='auto';
-    el.style.height=Math.max(el.scrollHeight,el.classList.contains('short')?96:150)+'px'; }
+  var scrs=[].slice.call(document.querySelectorAll('.scr'));
+  var fill=document.getElementById('fill'), count=document.getElementById('count'),
+      next=document.getElementById('next'), back=document.getElementById('back'),
+      godc=document.getElementById('godiscord'), bar=document.querySelector('.bar');
+  var step=+(data.__step||0);
 
-  var ptxt=document.getElementById('ptxt'), fill=document.getElementById('fill'),
-      copy=document.getElementById('copy'), open=document.getElementById('open'),
-      again=document.getElementById('again'), bar=document.querySelector('.bar');
-  var where='';
-
-  function val(i){
-    var v=(data['q'+i]||'').trim();
-    if(i===1)  v=(data.q1n||'')+v;
-    if(i===10) v=(data.q10pick||'')+v;
-    if(i===14) v=(data.q14pick||'')+v;
-    return v;
-  }
-  function tally(){
-    var n=0;
-    for(var i=1;i<=N;i++){
-      var v=val(i); if(v) n++;
-      var b=document.querySelector('.q[data-q="'+i+'"]');
-      if(b) b.classList.toggle('done',!!v);
-    }
-    ptxt.textContent=(where?where+' \u00b7 ':'')+n+' of '+N+' answered';
-    fill.style.width=(n/N*100)+'%';
-    if(open.hidden) copy.disabled = n===0;
-    return n;
-  }
-
-  [].slice.call(document.querySelectorAll('[data-k]')).forEach(function(el){
-    var k=el.dataset.k;
-    if(data[k]!==undefined) el.value=data[k];
-    grow(el);
-    el.addEventListener('input',function(){
-      data[k]=el.value; grow(el); save(data); flash(); tally();
-    });
-  });
-
-  document.querySelectorAll('[data-scale]').forEach(function(g){
-    var k=g.dataset.scale;
-    [].forEach.call(g.querySelectorAll('button'),function(b){
-      if(data[k]===b.textContent) b.setAttribute('aria-pressed','true');
-      b.addEventListener('click',function(){
-        var on=b.getAttribute('aria-pressed')==='true';
-        [].forEach.call(g.querySelectorAll('button'),function(o){o.setAttribute('aria-pressed','false');});
-        if(on){ delete data[k]; } else { b.setAttribute('aria-pressed','true'); data[k]=b.textContent; }
-        save(data); flash(); tally();
-      });
-    });
-  });
-
-  document.querySelectorAll('[data-pick]').forEach(function(g){
-    var k=g.dataset.pick, gate=g.dataset.gate?document.getElementById(g.dataset.gate):null;
-    function openGate(){ if(!gate) return;
-      var v=data[k]||''; gate.hidden = !(v && v.toLowerCase().indexOf('no')!==0); }
-    [].forEach.call(g.querySelectorAll('button'),function(b){
-      if(data[k]===b.textContent) b.setAttribute('aria-pressed','true');
-      b.addEventListener('click',function(){
-        var on=b.getAttribute('aria-pressed')==='true';
-        [].forEach.call(g.querySelectorAll('button'),function(o){o.setAttribute('aria-pressed','false');});
-        if(on){ delete data[k]; } else { b.setAttribute('aria-pressed','true'); data[k]=b.textContent; }
-        save(data); flash(); openGate(); tally();
-      });
-    });
-    openGate();
-  });
-
-  /* the bar says where you are — the job the cover cannot do */
-  var heads=[].slice.call(document.querySelectorAll('h2'));
-  function whereAmI(){
-    var cur='';
-    heads.forEach(function(h){ if(h.getBoundingClientRect().top<90) cur=h.firstChild.textContent.trim(); });
-    if(cur!==where){ where=cur; tally(); }
-  }
-  addEventListener('scroll',whereAmI,{passive:true});
-
-  var QS={};
-  document.querySelectorAll('.q').forEach(function(b){
-    QS[b.dataset.q]=b.querySelector('.ask').textContent.trim();
-  });
-
-  /* ── What goes out ────────────────────────────────────────────────
-     TWO shapes, on purpose.
-     The FILE carries everything — questions and answers — because a
-     file has no limit and it has to make sense on its own in a year.
-     The CLIPBOARD carries answers only, because Discord's ceiling is
-     2000 characters and the question text alone is 1679 of them. */
-  function ans(i){
+  function ansOf(i){
     var free=(data['q'+i]||'').trim();
-    if(i===1)  return [data.q1n?data.q1n+'/10':'', free].filter(Boolean).join(' — ');
+    if(i===1)  return [data.q1n?data.q1n+' out of 10':'', free].filter(Boolean).join(' — ');
     if(i===10||i===14) return [data['q'+i+'pick']||'', free].filter(Boolean).join(' — ');
     return free;
   }
-  function today(){
-    return new Date().toLocaleDateString('en-AU',{day:'numeric',month:'long',year:'numeric'});
+  function answered(){ var a=[]; for(var i=1;i<=N;i++) if(ansOf(i)) a.push(i); return a; }
+
+  function show(s){
+    step=s; data.__step=s; save();
+    scrs.forEach(function(el){ el.classList.toggle('on', +el.dataset.step===s); });
+    window.scrollTo(0,0);
+    paint();
   }
 
-  /* answers only, split at a question boundary if it will not fit */
-  function clipParts(){
-    var items=[];
-    for(var i=1;i<=N;i++) items.push(i+'. '+(ans(i) || '(left blank)'));
-    var LIMIT=1900, parts=[], cur=[];
-    items.forEach(function(it){
-      var trial=cur.concat([it]).join('\n\n');
-      if(cur.length && trial.length>LIMIT-60){ parts.push(cur); cur=[it]; }
-      else cur.push(it);
-    });
-    if(cur.length) parts.push(cur);
-    return parts.map(function(p,ix){
-      var head='**Before we meet — '+today()+
-        (parts.length>1 ? '  ('+(ix+1)+' of '+parts.length+')' : '')+'**';
-      return head+'\n\n'+p.join('\n\n');
-    });
-  }
-
-  function putOnClipboard(t){
-    var ok=false;
-    try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t); ok=true; } }catch(e){}
-    if(!ok){
-      var ta=document.createElement('textarea'); ta.value=t; ta.style.position='fixed';
-      ta.style.opacity='0'; document.body.appendChild(ta); ta.select();
-      try{ document.execCommand('copy'); ok=true; }catch(e){}
-      document.body.removeChild(ta);
-    }
-    return ok;
-  }
-
-  function sent(msg){
-    ptxt.textContent=msg; ptxt.style.color='var(--ink)'; ptxt.style.fontWeight='600';
-    copy.hidden=true; open.href=DISCORD; open.hidden=false; again.hidden=false;
-  }
-
-  var partIx=+(data.__part||0), parts=[];
-  copy.addEventListener('click',function(){
-    if(!parts.length) parts=clipParts();
-    if(partIx>=parts.length) partIx=0;
-    if(!putOnClipboard(parts[partIx])){
-      copy.textContent='Press and hold to copy';
-      setTimeout(function(){copy.textContent='Copy as text';},2600); return;
-    }
-    partIx++; data.__part=partIx; save(data);
-    if(partIx<parts.length){
-      copy.textContent='Copy part '+(partIx+1)+' of '+parts.length;
-      ptxt.textContent='Part '+partIx+' copied — paste it, then come back';
-      ptxt.style.color='var(--ink)'; ptxt.style.fontWeight='600';
+  function paint(){
+    godc.hidden=true; next.hidden=false; back.hidden=(step===0||step>=17);
+    if(step===0){
+      count.textContent=''; next.textContent='Start'; next.disabled=false;
+      fill.style.width='0';
+    } else if(step<=N){
+      count.textContent='Question '+step+' of '+N;
+      next.textContent = step===N ? 'Finish' : 'Next';
+      next.disabled=false;
+      fill.style.width=(step/N*100)+'%';
+    } else if(step===17){
+      var a=answered(), blanks=[];
+      for(var i=1;i<=N;i++) if(!ansOf(i)) blanks.push(i);
+      document.getElementById('blanks').hidden = blanks.length===0;
+      document.getElementById('blanklist').textContent =
+        blanks.length ? 'Question '+blanks.join(', ')+'. You can send without them, but I\u2019d rather have something than nothing.' : '';
+      count.textContent=a.length+' answers to send';
+      next.textContent='Start sending'; next.disabled=a.length===0;
+      fill.style.width='100%';
+    } else if(step===18){
+      var list=answered(), ix=+(data.__send||0);
+      if(ix>=list.length){ show(19); return; }
+      var q=list[ix];
+      document.getElementById('sendhead').textContent='Sending '+(ix+1)+' of '+list.length;
+      document.getElementById('sendq').textContent='Question '+q+' — '+QS[q];
+      document.getElementById('sendbox').textContent=ansOf(q);
+      document.getElementById('tick').hidden = !data.__copied;
+      count.textContent='';
+      fill.style.width=((ix)/list.length*100)+'%';
+      if(data.__copied){ godc.hidden=true; next.hidden=false;
+        next.textContent = (ix+1<list.length) ? 'Next answer' : 'That\u2019s the lot';
+        next.disabled=false;
+      } else { next.hidden=true; godc.hidden=false; }
+      back.hidden=false;
     } else {
-      sent(parts.length>1
-        ? 'All '+parts.length+' parts copied — paste the last one'
-        : 'Copied — now paste it in Discord');
-      again.textContent='Copy again';
-      data.__part=0; save(data);
-      again.onclick=function(){ parts=clipParts(); partIx=0; putOnClipboard(parts[0]); };
+      count.textContent=''; next.hidden=true; godc.hidden=true; back.hidden=true;
+      fill.style.width='100%';
     }
+  }
+
+  next.addEventListener('click',function(){
+    if(step===17){ data.__send=0; data.__copied=false; save(); show(18); return; }
+    if(step===18){
+      data.__send=(+(data.__send||0))+1; data.__copied=false; save();
+      var list=answered();
+      if(data.__send>=list.length) show(19); else paint();
+      return;
+    }
+    show(step+1);
+  });
+  back.addEventListener('click',function(){
+    if(step===18){
+      var ix=+(data.__send||0);
+      if(ix>0){ data.__send=ix-1; data.__copied=false; save(); paint(); }
+      else { show(17); }
+      return;
+    }
+    show(Math.max(0,step-1));
+  });
+  document.getElementById('goback').addEventListener('click',function(){
+    for(var i=1;i<=N;i++) if(!ansOf(i)){ show(i); return; }
   });
 
-  /* she left mid-way and came back: pick up where she was */
-  if(partIx>0){
-    parts=clipParts();
-    if(partIx<parts.length) copy.textContent='Copy part '+(partIx+1)+' of '+parts.length;
-  }
+  godc.addEventListener('click',function(){
+    var list=answered(), ix=+(data.__send||0), q=list[ix];
+    var t='**'+q+'.** '+QS[q]+'\n\n'+ansOf(q);
+    try{ if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(t); }catch(e){}
+    var ta=document.createElement('textarea'); ta.value=t; ta.style.position='fixed';
+    ta.style.opacity='0'; document.body.appendChild(ta); ta.select();
+    try{ document.execCommand('copy'); }catch(e){} document.body.removeChild(ta);
+    data.__copied=true; save();
+    setTimeout(paint,50);
+  });
+  godc.href=DISCORD;
+
+  /* fields */
+  [].slice.call(document.querySelectorAll('[data-k]')).forEach(function(el){
+    var k=el.dataset.k;
+    if(data[k]!==undefined) el.value=data[k];
+    el.addEventListener('input',function(){ data[k]=el.value; save(); });
+  });
+  document.querySelectorAll('[data-scale],[data-pick]').forEach(function(g){
+    var k=g.dataset.scale||g.dataset.pick;
+    [].forEach.call(g.querySelectorAll('button'),function(b){
+      if(data[k]===b.textContent) b.setAttribute('aria-pressed','true');
+      b.addEventListener('click',function(){
+        var on=b.getAttribute('aria-pressed')==='true';
+        [].forEach.call(g.querySelectorAll('button'),function(o){o.setAttribute('aria-pressed','false');});
+        if(on) delete data[k]; else { b.setAttribute('aria-pressed','true'); data[k]=b.textContent; }
+        save();
+      });
+    });
+  });
 
   /* the bar steps aside for the keyboard */
   document.addEventListener('focusin',function(e){
@@ -517,10 +381,9 @@ h2 .of{color:var(--ink-2);font-size:14px;font-weight:500;letter-spacing:0;margin
     },80);
   });
 
-  whereAmI(); tally();
-  addEventListener('resize',function(){
-    [].slice.call(document.querySelectorAll('textarea')).forEach(grow); });
+  show(step);
 })();
 </script>
+
 </body>
 </html>
