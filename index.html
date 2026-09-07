@@ -228,7 +228,7 @@ textarea:focus,input[type=text]:focus{outline:none;border-color:var(--hero-deep)
   <div class="eyebrow" id="sendhead">Sending 1 of 16</div>
   <p class="sendq" id="sendq"></p>
   <div class="sendbox" id="sendbox"></div>
-  <p class="tick" id="tick" hidden>Copied. Paste it in Discord, then come back.</p>
+  <p class="tick" id="tick" hidden></p>
 </section>
 
 <section class="scr" data-step="19">
@@ -248,7 +248,7 @@ textarea:focus,input[type=text]:focus{outline:none;border-color:var(--hero-deep)
       <button class="back" id="back" type="button" hidden>Back</button>
       <span class="count" id="count"></span>
       <button class="btn" id="next" type="button">Start</button>
-      <a class="btn grow" id="godiscord" href="#" target="_blank" rel="noopener" hidden>Copy &amp; open Discord</a>
+      <button class="btn grow" id="godiscord" type="button" hidden>Copy &amp; open Discord</button>
     </div>
   </div>
 </div>
@@ -335,7 +335,9 @@ textarea:focus,input[type=text]:focus{outline:none;border-color:var(--hero-deep)
       document.getElementById('sendq').textContent='Question '+m.q+' — '+QS[m.q]
         + (m.head.indexOf('(part')>-1 ? '  ' + m.head.slice(m.head.indexOf('(part')) : '');
       document.getElementById('sendbox').textContent=m.body;
-      document.getElementById('tick').hidden = !data.__copied;
+      var tk=document.getElementById('tick');
+      tk.hidden = !data.__justcopied;
+      tk.textContent = 'Last one copied. Paste it in Discord, then send this one.';
       count.textContent='';
       fill.style.width=((ix)/list.length*100)+'%';
       /* BOTH always shown: copy-and-go, and plain move-along. */
@@ -352,7 +354,7 @@ textarea:focus,input[type=text]:focus{outline:none;border-color:var(--hero-deep)
   next.addEventListener('click',function(){
     if(step===17){ data.__send=0; data.__copied=false; save(); show(18); return; }
     if(step===18){
-      data.__send=(+(data.__send||0))+1; data.__copied=false; save();
+      data.__send=(+(data.__send||0))+1; data.__copied=false; data.__justcopied=false; save();
       if(data.__send>=msgs().length) show(19); else paint();
       return;
     }
@@ -384,10 +386,14 @@ textarea:focus,input[type=text]:focus{outline:none;border-color:var(--hero-deep)
     var ta=document.createElement('textarea'); ta.value=t; ta.style.position='fixed';
     ta.style.opacity='0'; document.body.appendChild(ta); ta.select();
     try{ document.execCommand('copy'); }catch(e){} document.body.removeChild(ta);
-    data.__copied=true; save();
-    setTimeout(paint,50);
+
+    /* advance BEFORE leaving, so whatever the browser does while she is in
+       Discord, she comes back to the next answer already waiting. */
+    data.__send=ix+1; data.__copied=false; data.__justcopied=true; save();
+    if(data.__send>=list.length) show(19); else show(18);
+
+    setTimeout(function(){ window.location.href = DISCORD; }, 120);
   });
-  godc.href=DISCORD;
 
   /* fields */
   [].slice.call(document.querySelectorAll('[data-k]')).forEach(function(el){
@@ -421,10 +427,15 @@ textarea:focus,input[type=text]:focus{outline:none;border-color:var(--hero-deep)
 
   /* Whatever iOS does on the way back — restore from cache, reload,
      resume — re-read state and redraw. */
-  addEventListener('pageshow', function(){ paint(); });
-  document.addEventListener('visibilitychange', function(){
-    if(!document.hidden){ data=load(); paint(); }
-  });
+  function rerender(){
+    data=load();
+    var st=+(data.__step||0);
+    if(!document.querySelector('.scr.on') || st!==step) show(st); else paint();
+    if(!document.querySelector('.scr.on')) show(0);   /* never a blank page */
+  }
+  addEventListener('pageshow', rerender);
+  addEventListener('focus', rerender);
+  document.addEventListener('visibilitychange', function(){ if(!document.hidden) rerender(); });
 
   show(step);
 })();
