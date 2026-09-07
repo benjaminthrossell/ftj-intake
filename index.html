@@ -109,7 +109,14 @@ textarea:focus,input[type=text]:focus{outline:none;border-color:var(--hero-deep)
   padding:var(--g3) var(--edge) calc(var(--g3) + env(safe-area-inset-bottom,0px));}
 .track{height:var(--g1);border-radius:2px;background:var(--panel);overflow:hidden;}
 .fill{height:100%;background:var(--hero);width:0;border-radius:2px;transition:width .25s;}
-.row{display:flex;align-items:center;gap:var(--g3);margin-top:var(--g3);}
+.row{display:flex;align-items:center;gap:var(--g3);margin-top:var(--g3);flex-wrap:wrap;}
+/* In send mode there are two ways on: the filled one that copies and
+   opens Discord, and a plain one that just moves along. Both are always
+   visible — iOS cannot be relied on to tell the page she came back, so
+   nothing may depend on detecting it. */
+.btn.plain{background:none;color:var(--ink);font-weight:600;font-size:15px;
+  height:auto;padding:var(--g2) 0;}
+@media(max-width:520px){ .row .grow{flex:1 1 100%;order:9;} }
 .count{flex:1;font-size:14px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .btn{font:inherit;font-size:1rem;font-weight:500;height:var(--tap);padding:0 var(--g5);
   border-radius:var(--btn-r);border:0;background:var(--hero);color:var(--on-hero);cursor:pointer;
@@ -240,7 +247,7 @@ textarea:focus,input[type=text]:focus{outline:none;border-color:var(--hero-deep)
       <button class="back" id="back" type="button" hidden>Back</button>
       <span class="count" id="count"></span>
       <button class="btn" id="next" type="button">Start</button>
-      <a class="btn" id="godiscord" href="#" target="_blank" rel="noopener" hidden>Copy &amp; open Discord</a>
+      <a class="btn grow" id="godiscord" href="#" target="_blank" rel="noopener" hidden>Copy &amp; open Discord</a>
     </div>
   </div>
 </div>
@@ -277,7 +284,8 @@ textarea:focus,input[type=text]:focus{outline:none;border-color:var(--hero-deep)
   }
 
   function paint(){
-    godc.hidden=true; next.hidden=false; back.hidden=(step===0||step>=17);
+    godc.hidden=true; next.hidden=false; next.classList.remove('plain');
+    back.hidden=(step===0||step>=17);
     if(step===0){
       count.textContent=''; next.textContent='Start'; next.disabled=false;
       fill.style.width='0';
@@ -305,10 +313,10 @@ textarea:focus,input[type=text]:focus{outline:none;border-color:var(--hero-deep)
       document.getElementById('tick').hidden = !data.__copied;
       count.textContent='';
       fill.style.width=((ix)/list.length*100)+'%';
-      if(data.__copied){ godc.hidden=true; next.hidden=false;
-        next.textContent = (ix+1<list.length) ? 'Next answer' : 'That\u2019s the lot';
-        next.disabled=false;
-      } else { next.hidden=true; godc.hidden=false; }
+      /* BOTH always shown: copy-and-go, and plain move-along. */
+      godc.hidden=false;
+      next.hidden=false; next.disabled=false; next.classList.add('plain');
+      next.textContent = (ix+1<list.length) ? 'Next answer' : 'That\u2019s the lot';
       back.hidden=false;
     } else {
       count.textContent=''; next.hidden=true; godc.hidden=true; back.hidden=true;
@@ -379,6 +387,13 @@ textarea:focus,input[type=text]:focus{outline:none;border-color:var(--hero-deep)
       var a=document.activeElement;
       if(!a || !a.matches('textarea, input[type=text]')) bar.classList.remove('away');
     },80);
+  });
+
+  /* Whatever iOS does on the way back — restore from cache, reload,
+     resume — re-read state and redraw. */
+  addEventListener('pageshow', function(){ paint(); });
+  document.addEventListener('visibilitychange', function(){
+    if(!document.hidden){ data=load(); paint(); }
   });
 
   show(step);
