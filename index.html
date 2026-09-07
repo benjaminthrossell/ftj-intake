@@ -31,7 +31,7 @@ body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--font);
 [hidden]{display:none!important;}
 
 .shell{max-width:var(--col);margin:0 auto;background:var(--ground);min-height:100%;
-  display:flex;flex-direction:column;}
+  padding-bottom:var(--g9);}   /* clear of the browser's own toolbar */
 .badge{display:grid;place-items:center;border-radius:18%;flex:none;background:var(--hero);
   width:var(--g6);height:var(--g6);}
 .badge i{display:block;width:78%;height:78%;background:var(--ink);
@@ -40,7 +40,7 @@ body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--font);
 .badge.inv{background:var(--ink);} .badge.inv i{background:var(--hero);}
 
 /* one screen at a time */
-.scr{display:none;flex:1;padding:var(--g5) var(--edge) 152px;}
+.scr{display:none;padding:var(--g5) var(--edge) 0;}
 .scr.on{display:block;}
 
 /* the cover */
@@ -104,21 +104,26 @@ textarea:focus,input[type=text]:focus{outline:none;border-color:var(--hero-deep)
 .dchelp{margin-top:var(--g4);font-size:14px;}
 .dchelp a{color:var(--ink-2);}
 
-/* the bar */
-.bar{position:fixed;left:0;right:0;bottom:0;z-index:9;transition:transform .18s ease;}
-.bar.away{transform:translateY(115%);}
-.bar .in{max-width:var(--col);margin:0 auto;background:var(--surface);
-  padding:var(--g3) var(--edge) calc(var(--g3) + env(safe-area-inset-bottom,0px));}
+/* THE CONTROLS SIT IN THE PAGE, never pinned to the window.
+   Pinned to the bottom they end up underneath an in-app browser's own
+   toolbar and cannot be reached. In normal flow nothing can cover them. */
+.bar{position:static;margin:var(--g5) var(--edge) 0;}
+.bar .in{background:var(--surface);border-radius:var(--r);
+  padding:var(--g4) var(--g4) var(--g5);}
 .track{height:var(--g1);border-radius:2px;background:var(--panel);overflow:hidden;}
 .fill{height:100%;background:var(--hero);width:0;border-radius:2px;transition:width .25s;}
-.row{display:flex;align-items:center;gap:var(--g3);margin-top:var(--g3);flex-wrap:wrap;}
+.row{display:flex;align-items:center;gap:var(--g3);margin-top:var(--g4);flex-wrap:wrap;}
+.bar .btn{min-height:var(--tap);}
 /* In send mode there are two ways on: the filled one that copies and
    opens Discord, and a plain one that just moves along. Both are always
    visible — iOS cannot be relied on to tell the page she came back, so
    nothing may depend on detecting it. */
 .btn.plain{background:none;color:var(--ink);font-weight:600;font-size:15px;
   height:auto;padding:var(--g2) 0;}
-@media(max-width:520px){ .row .grow{flex:1 1 100%;order:9;} }
+@media(max-width:640px){
+  .row .grow{flex:1 1 100%;order:9;}
+  .row #next{flex:1 1 auto;}
+}
 .count{flex:1;font-size:14px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .btn{font:inherit;font-size:1rem;font-weight:500;height:var(--tap);padding:0 var(--g5);
   border-radius:var(--btn-r);border:0;background:var(--hero);color:var(--on-hero);cursor:pointer;
@@ -242,8 +247,6 @@ textarea:focus,input[type=text]:focus{outline:none;border-color:var(--hero-deep)
   <p style="font-size:15px;line-height:1.55;margin:var(--g5) 0 0;color:var(--ink-2)">If one of them didn&rsquo;t make it into Discord, hit Back and you can send it again.</p>
 </section>
 
-</div>
-
 <div class="bar">
   <div class="in">
     <div class="track"><div class="fill" id="fill"></div></div>
@@ -254,6 +257,8 @@ textarea:focus,input[type=text]:focus{outline:none;border-color:var(--hero-deep)
       <button class="btn grow" id="godiscord" type="button" hidden>Copy &amp; open Discord</button>
     </div>
   </div>
+</div>
+
 </div>
 
 <script>
@@ -433,16 +438,6 @@ textarea:focus,input[type=text]:focus{outline:none;border-color:var(--hero-deep)
     });
   });
 
-  /* the bar steps aside for the keyboard */
-  document.addEventListener('focusin',function(e){
-    if(e.target.matches('textarea, input[type=text]')) bar.classList.add('away');
-  });
-  document.addEventListener('focusout',function(){
-    setTimeout(function(){
-      var a=document.activeElement;
-      if(!a || !a.matches('textarea, input[type=text]')) bar.classList.remove('away');
-    },80);
-  });
 
   /* Whatever iOS does on the way back — restore from cache, reload,
      resume — re-read state and redraw. */
