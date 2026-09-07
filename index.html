@@ -98,8 +98,12 @@ textarea:focus,input[type=text]:focus{outline:none;border-color:var(--hero-deep)
 /* the sending screen */
 .sendq{font-weight:500;letter-spacing:-0.03em;font-size:1.15rem;line-height:1.35;
   margin:var(--g3) 0 0;color:var(--ink-2);}
-.sendbox{background:var(--surface);border-radius:var(--r);padding:var(--g4);margin-top:var(--g4);
+.sendwrap{position:relative;margin-top:var(--g4);}
+.sendbox{background:var(--surface);border-radius:var(--r);padding:var(--g4);
   font-size:16px;line-height:1.55;white-space:pre-wrap;max-height:44vh;overflow:auto;}
+/* the mark sits ON the answer, so it can only ever mean THIS answer */
+.stamp{position:absolute;top:var(--g3);right:var(--g3);background:var(--go);color:#fff;
+  font-size:13px;font-weight:600;border-radius:var(--r);padding:2px var(--g2);}
 .tick{color:var(--go);font-weight:600;font-size:15px;margin-top:var(--g4);}
 .btn.wide{width:100%;margin-top:var(--g5);}
 .dchelp{margin-top:var(--g4);font-size:14px;}
@@ -235,10 +239,12 @@ textarea:focus,input[type=text]:focus{outline:none;border-color:var(--hero-deep)
 <section class="scr" data-step="18">
   <div class="eyebrow" id="sendhead">Sending 1 of 16</div>
   <p class="sendq" id="sendq"></p>
-  <div class="sendbox" id="sendbox"></div>
-  <button class="btn wide" id="godiscord" type="button">Copy &amp; open Discord</button>
-  <p class="tick" id="tick" hidden></p>
-  <p class="dchelp"><a id="dcweb" href="https://discord.com/channels/@me" target="_blank" rel="noopener">Discord didn&rsquo;t open? Tap here &mdash; this page stays put.</a></p>
+  <div class="sendwrap">
+    <div class="sendbox" id="sendbox"></div>
+    <span class="stamp" id="stamp" hidden>Copied</span>
+  </div>
+  <button class="btn wide" id="godiscord" type="button">Copy this answer</button>
+  <p class="dchelp" id="dchelp" hidden><a href="https://discord.com/channels/@me" target="_blank" rel="noopener">Discord didn&rsquo;t open? Tap here &mdash; this page stays put.</a></p>
 </section>
 
 <section class="scr" data-step="19">
@@ -344,12 +350,14 @@ textarea:focus,input[type=text]:focus{outline:none;border-color:var(--hero-deep)
       document.getElementById('sendq').textContent='Question '+m.q+' — '+QS[m.q]
         + (m.head.indexOf('(part')>-1 ? '  ' + m.head.slice(m.head.indexOf('(part')) : '');
       document.getElementById('sendbox').textContent=m.body;
-      var tk=document.getElementById('tick');
-      tk.hidden = !data.__justcopied;
-      tk.textContent = 'Copied. Paste it in Discord, then come back here for the next one.';
       count.textContent='';
       fill.style.width=((ix)/list.length*100)+'%';
-      next.hidden=false; next.disabled=false; next.classList.add('plain');
+      var done = (data.__copiedIx===ix);
+      document.getElementById('stamp').hidden = !done;
+      document.getElementById('dchelp').hidden = !done;
+      godc.textContent = done ? 'Open Discord' : 'Copy this answer';
+      next.hidden = !done;              /* nothing to move on to until it is copied */
+      next.disabled=false; next.classList.add('plain');
       next.textContent = (ix+1<list.length) ? 'Next answer' : 'That\u2019s the lot';
       back.hidden=false;
     } else {
@@ -359,9 +367,9 @@ textarea:focus,input[type=text]:focus{outline:none;border-color:var(--hero-deep)
   }
 
   next.addEventListener('click',function(){
-    if(step===17){ data.__send=0; data.__copied=false; save(); show(18); return; }
+    if(step===17){ data.__send=0; data.__copiedIx=-1; save(); show(18); return; }
     if(step===18){
-      data.__send=(+(data.__send||0))+1; data.__copied=false; data.__justcopied=false; save();
+      data.__send=(+(data.__send||0))+1; data.__copiedIx=-1; save();
       if(data.__send>=msgs().length) show(19); else paint();
       return;
     }
@@ -370,12 +378,12 @@ textarea:focus,input[type=text]:focus{outline:none;border-color:var(--hero-deep)
   back.addEventListener('click',function(){
     if(step===17){ show(N); return; }                 /* done -> last question */
     if(step===19){                                     /* finished -> last answer */
-      var l=msgs(); data.__send=Math.max(0,l.length-1); data.__copied=false; save();
+      var l=msgs(); data.__send=Math.max(0,l.length-1); data.__copiedIx=-1; save();
       show(18); return;
     }
     if(step===18){
       var ix=+(data.__send||0);
-      if(ix>0){ data.__send=ix-1; data.__copied=false; save(); paint(); }
+      if(ix>0){ data.__send=ix-1; data.__copiedIx=-1; save(); paint(); }
       else { show(17); }
       return;
     }
@@ -388,24 +396,23 @@ textarea:focus,input[type=text]:focus{outline:none;border-color:var(--hero-deep)
   godc.addEventListener('click',function(){
     var list=msgs(), ix=+(data.__send||0);
     if(!list[ix]) return;
-    var t=list[ix].text;
-    try{ if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(t); }catch(e){}
-    var ta=document.createElement('textarea'); ta.value=t; ta.style.position='fixed';
-    ta.style.opacity='0'; document.body.appendChild(ta); ta.select();
-    try{ document.execCommand('copy'); }catch(e){} document.body.removeChild(ta);
 
-    /* advance BEFORE leaving, so whatever the browser does while she is in
-       Discord, she comes back to the next answer already waiting. */
-    data.__send=ix+1; data.__copied=false; data.__justcopied=true; save();
-    if(data.__send>=list.length) show(19); else show(18);
+    if(data.__copiedIx!==ix){
+      /* FIRST TAP: copy. Nothing moves. The answer she is looking at is
+         the answer that got copied, and it stays on screen. */
+      var t=list[ix].text;
+      try{ if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(t); }catch(e){}
+      var ta=document.createElement('textarea'); ta.value=t; ta.style.position='fixed';
+      ta.style.opacity='0'; document.body.appendChild(ta); ta.select();
+      try{ document.execCommand('copy'); }catch(e){} document.body.removeChild(ta);
+      data.__copiedIx=ix; save(); paint();
+      return;
+    }
 
-    /* A CUSTOM SCHEME, set straight on location. iOS intercepts it and
-       opens the Discord app — it does NOT navigate this page, which is
-       what makes it different from an http link. (An iframe is blocked on
-       iOS, which is why the last attempt did nothing.) If the app is not
-       installed nothing happens and the form is still right here — that is
-       what the plain link underneath is for. */
-    setTimeout(function(){ try{ window.location.href='discord://'; }catch(e){} }, 120);
+    /* SECOND TAP: open Discord. A custom scheme, so iOS opens the app and
+       this page is never touched. She comes back to exactly this screen,
+       still marked copied, with Next answer waiting. */
+    try{ window.location.href='discord://'; }catch(e){}
   });
 
   /* fields */
