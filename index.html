@@ -277,6 +277,29 @@ textarea:focus,input[type=text]:focus{outline:none;border-color:var(--hero-deep)
   }
   function answered(){ var a=[]; for(var i=1;i<=N;i++) if(ansOf(i)) a.push(i); return a; }
 
+  /* One message per answer — except for an answer so long that Discord
+     would reject it. "There are no answers too long" is a promise on the
+     first screen, so the page has to keep it: a monster answer splits at
+     a word boundary and she pastes it in two. */
+  function msgs(){
+    var out=[], LIMIT=1900;
+    answered().forEach(function(q){
+      var head='**'+q+'.** '+QS[q], body=ansOf(q), room=LIMIT-head.length-30;
+      if(body.length<=room){ out.push({q:q,head:head,body:body,text:head+'\n\n'+body}); return; }
+      var parts=[], cur='';
+      body.split(/(\s+)/).forEach(function(t){
+        if(cur && (cur+t).length>room){ parts.push(cur); cur=t.replace(/^\s+/,''); }
+        else cur+=t;
+      });
+      if(cur) parts.push(cur);
+      parts.forEach(function(p,i){
+        var h=head+'  (part '+(i+1)+' of '+parts.length+')';
+        out.push({q:q,head:h,body:p,text:h+'\n\n'+p});
+      });
+    });
+    return out;
+  }
+
   function show(s){
     step=s; data.__step=s; save();
     scrs.forEach(function(el){ el.classList.toggle('on', +el.dataset.step===s); });
@@ -305,12 +328,13 @@ textarea:focus,input[type=text]:focus{outline:none;border-color:var(--hero-deep)
       next.textContent='Start sending'; next.disabled=a.length===0;
       fill.style.width='100%';
     } else if(step===18){
-      var list=answered(), ix=+(data.__send||0);
+      var list=msgs(), ix=+(data.__send||0);
       if(ix>=list.length){ show(19); return; }
-      var q=list[ix];
+      var m=list[ix];
       document.getElementById('sendhead').textContent='Sending '+(ix+1)+' of '+list.length;
-      document.getElementById('sendq').textContent='Question '+q+' — '+QS[q];
-      document.getElementById('sendbox').textContent=ansOf(q);
+      document.getElementById('sendq').textContent='Question '+m.q+' — '+QS[m.q]
+        + (m.head.indexOf('(part')>-1 ? '  ' + m.head.slice(m.head.indexOf('(part')) : '');
+      document.getElementById('sendbox').textContent=m.body;
       document.getElementById('tick').hidden = !data.__copied;
       count.textContent='';
       fill.style.width=((ix)/list.length*100)+'%';
@@ -329,8 +353,7 @@ textarea:focus,input[type=text]:focus{outline:none;border-color:var(--hero-deep)
     if(step===17){ data.__send=0; data.__copied=false; save(); show(18); return; }
     if(step===18){
       data.__send=(+(data.__send||0))+1; data.__copied=false; save();
-      var list=answered();
-      if(data.__send>=list.length) show(19); else paint();
+      if(data.__send>=msgs().length) show(19); else paint();
       return;
     }
     show(step+1);
@@ -338,7 +361,7 @@ textarea:focus,input[type=text]:focus{outline:none;border-color:var(--hero-deep)
   back.addEventListener('click',function(){
     if(step===17){ show(N); return; }                 /* done -> last question */
     if(step===19){                                     /* finished -> last answer */
-      var l=answered(); data.__send=Math.max(0,l.length-1); data.__copied=false; save();
+      var l=msgs(); data.__send=Math.max(0,l.length-1); data.__copied=false; save();
       show(18); return;
     }
     if(step===18){
@@ -354,8 +377,9 @@ textarea:focus,input[type=text]:focus{outline:none;border-color:var(--hero-deep)
   });
 
   godc.addEventListener('click',function(){
-    var list=answered(), ix=+(data.__send||0), q=list[ix];
-    var t='**'+q+'.** '+QS[q]+'\n\n'+ansOf(q);
+    var list=msgs(), ix=+(data.__send||0);
+    if(!list[ix]) return;
+    var t=list[ix].text;
     try{ if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(t); }catch(e){}
     var ta=document.createElement('textarea'); ta.value=t; ta.style.position='fixed';
     ta.style.opacity='0'; document.body.appendChild(ta); ta.select();
