@@ -101,6 +101,7 @@ textarea:focus,input[type=text]:focus{outline:none;border-color:var(--hero-deep)
 .sendbox{background:var(--surface);border-radius:var(--r);padding:var(--g4);margin-top:var(--g4);
   font-size:16px;line-height:1.55;white-space:pre-wrap;max-height:44vh;overflow:auto;}
 .tick{color:var(--go);font-weight:600;font-size:15px;margin-top:var(--g4);}
+.btn.wide{width:100%;margin-top:var(--g5);}
 .dchelp{margin-top:var(--g4);font-size:14px;}
 .dchelp a{color:var(--ink-2);}
 
@@ -235,6 +236,7 @@ textarea:focus,input[type=text]:focus{outline:none;border-color:var(--hero-deep)
   <div class="eyebrow" id="sendhead">Sending 1 of 16</div>
   <p class="sendq" id="sendq"></p>
   <div class="sendbox" id="sendbox"></div>
+  <button class="btn wide" id="godiscord" type="button">Copy &amp; open Discord</button>
   <p class="tick" id="tick" hidden></p>
   <p class="dchelp"><a id="dcweb" href="https://discord.com/channels/@me" target="_blank" rel="noopener">Discord didn&rsquo;t open? Tap here &mdash; this page stays put.</a></p>
 </section>
@@ -254,7 +256,6 @@ textarea:focus,input[type=text]:focus{outline:none;border-color:var(--hero-deep)
       <button class="back" id="back" type="button" hidden>Back</button>
       <span class="count" id="count"></span>
       <button class="btn" id="next" type="button">Start</button>
-      <button class="btn grow" id="godiscord" type="button" hidden>Copy &amp; open Discord</button>
     </div>
   </div>
 </div>
@@ -316,7 +317,7 @@ textarea:focus,input[type=text]:focus{outline:none;border-color:var(--hero-deep)
   }
 
   function paint(){
-    godc.hidden=true; next.hidden=false; next.classList.remove('plain');
+    next.hidden=false; next.classList.remove('plain');
     back.hidden=(step===0);
     if(step===0){
       count.textContent=''; next.textContent='Start'; next.disabled=false;
@@ -348,8 +349,6 @@ textarea:focus,input[type=text]:focus{outline:none;border-color:var(--hero-deep)
       tk.textContent = 'Copied. Paste it in Discord, then come back here for the next one.';
       count.textContent='';
       fill.style.width=((ix)/list.length*100)+'%';
-      /* BOTH always shown: copy-and-go, and plain move-along. */
-      godc.hidden=false;
       next.hidden=false; next.disabled=false; next.classList.add('plain');
       next.textContent = (ix+1<list.length) ? 'Next answer' : 'That\u2019s the lot';
       back.hidden=false;
@@ -400,23 +399,13 @@ textarea:focus,input[type=text]:focus{outline:none;border-color:var(--hero-deep)
     data.__send=ix+1; data.__copied=false; data.__justcopied=true; save();
     if(data.__send>=list.length) show(19); else show(18);
 
-    /* DO NOT NAVIGATE. Opening a link — new tab or same tab — loses the
-       page: a new tab leaves her on a blank one, and navigating away puts
-       Discord where the form was. Either way she comes back to the wrong
-       thing.
-       A custom-scheme deep link in a throwaway iframe asks iOS to open the
-       Discord app WITHOUT touching this page at all. If the app is not
-       installed nothing happens, which is the correct failure: the form is
-       still right here showing the next answer, and she switches apps
-       herself. */
-    setTimeout(function(){
-      try{
-        var f=document.createElement('iframe');
-        f.style.display='none'; f.src='discord://';
-        document.body.appendChild(f);
-        setTimeout(function(){ try{ f.remove(); }catch(e){} }, 1500);
-      }catch(e){}
-    }, 100);
+    /* A CUSTOM SCHEME, set straight on location. iOS intercepts it and
+       opens the Discord app — it does NOT navigate this page, which is
+       what makes it different from an http link. (An iframe is blocked on
+       iOS, which is why the last attempt did nothing.) If the app is not
+       installed nothing happens and the form is still right here — that is
+       what the plain link underneath is for. */
+    setTimeout(function(){ try{ window.location.href='discord://'; }catch(e){} }, 120);
   });
 
   /* fields */
