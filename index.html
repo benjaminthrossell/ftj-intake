@@ -138,7 +138,10 @@ h2 .of{color:var(--ink-2);font-size:14px;font-weight:500;letter-spacing:0;margin
 
 /* the bar — the ONE fixed region. It says where you are, which the cover
    cannot, and it stops at the column edge like everything else. */
-.bar{position:fixed;left:0;right:0;bottom:0;z-index:9;}
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:9;transition:transform .18s ease;}
+/* While the keyboard is up she is writing, not sending. The bar gets out
+   of the way — on a phone it was half the visible screen. */
+.bar.away{transform:translateY(110%);}
 .bar .in{max-width:var(--col);margin:0 auto;background:var(--surface);
   display:flex;align-items:center;gap:var(--g4);
   padding:var(--g3) var(--edge) calc(var(--g3) + env(safe-area-inset-bottom,0px));}
@@ -303,9 +306,9 @@ h2 .of{color:var(--ink-2);font-size:14px;font-weight:500;letter-spacing:0;margin
   <div class="sendoff">
     <h3>Sending it to me</h3>
     <ol class="steps">
-      <li>Hit <b>Save my answers</b> at the bottom. It saves a small file to your phone.</li>
-      <li>Open our channel in Discord and attach that file.</li>
-      <li>Attach your photo from question 5 to the same message too, then send.</li>
+      <li>Hit <b>Copy my answers</b> at the bottom.</li>
+      <li>Open our channel in Discord and paste. If it says <b>Copy part 2</b> when you come back, hit it and paste that too.</li>
+      <li>Add your photo from question 5 to the same message, then send.</li>
     </ol>
     <div class="note">
       <b>Your answers live on this phone, in this browser.</b>
@@ -322,9 +325,8 @@ h2 .of{color:var(--ink-2);font-size:14px;font-weight:500;letter-spacing:0;margin
       <div class="pt"><span class="where" id="ptxt">0 of 16 answered</span><span class="sv" id="sv">Saved</span></div>
       <div class="track"><div class="fill" id="fill"></div></div>
     </div>
-    <button class="again" id="again" type="button" hidden>Save again</button>
-    <button class="again" id="copy" type="button">Copy as text</button>
-    <button class="btn" id="save" type="button">Save my answers</button>
+    <button class="again" id="again" type="button" hidden>Copy again</button>
+    <button class="btn" id="copy" type="button">Copy my answers</button>
     <a class="btn" id="open" href="#" target="_blank" rel="noopener" hidden>Open Discord</a>
   </div>
 </div>
@@ -349,7 +351,7 @@ h2 .of{color:var(--ink-2);font-size:14px;font-weight:500;letter-spacing:0;margin
 
   var ptxt=document.getElementById('ptxt'), fill=document.getElementById('fill'),
       copy=document.getElementById('copy'), open=document.getElementById('open'),
-      again=document.getElementById('again'), save1=document.getElementById('save');
+      again=document.getElementById('again'), bar=document.querySelector('.bar');
   var where='';
 
   function val(i){
@@ -368,7 +370,7 @@ h2 .of{color:var(--ink-2);font-size:14px;font-weight:500;letter-spacing:0;margin
     }
     ptxt.textContent=(where?where+' \u00b7 ':'')+n+' of '+N+' answered';
     fill.style.width=(n/N*100)+'%';
-    if(open.hidden){ save1.disabled = n===0; copy.disabled = n===0; }
+    if(open.hidden) copy.disabled = n===0;
     return n;
   }
 
@@ -440,18 +442,6 @@ h2 .of{color:var(--ink-2);font-size:14px;font-weight:500;letter-spacing:0;margin
     return new Date().toLocaleDateString('en-AU',{day:'numeric',month:'long',year:'numeric'});
   }
 
-  function fileText(){
-    var out=['BEFORE WE MEET','Sent '+today(),''];
-    for(var i=1;i<=N;i++){
-      out.push(i+'. '+QS[i]);
-      out.push('');
-      out.push(ans(i) || '(left blank)');
-      out.push('');
-      out.push('');
-    }
-    return out.join('\n').trim()+'\n';
-  }
-
   /* answers only, split at a question boundary if it will not fit */
   function clipParts(){
     var items=[];
@@ -482,36 +472,20 @@ h2 .of{color:var(--ink-2);font-size:14px;font-weight:500;letter-spacing:0;margin
     return ok;
   }
 
-  function saveFile(){
-    var name='Before we meet - '+today()+'.txt';
-    var blob=new Blob([fileText()],{type:'text/plain;charset=utf-8'});
-    var url=URL.createObjectURL(blob);
-    var a=document.createElement('a');
-    a.href=url; a.download=name; a.rel='noopener';
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    setTimeout(function(){ URL.revokeObjectURL(url); }, 20000);
-  }
-
   function sent(msg){
     ptxt.textContent=msg; ptxt.style.color='var(--ink)'; ptxt.style.fontWeight='600';
-    save1.hidden=true; copy.hidden=true;
-    open.href=DISCORD; open.hidden=false; again.hidden=false;
+    copy.hidden=true; open.href=DISCORD; open.hidden=false; again.hidden=false;
   }
 
-  save1.addEventListener('click',function(){
-    saveFile();
-    sent('Saved — now send it to me in Discord');
-    again.textContent='Save again';
-  });
-
-  var partIx=0, parts=[];
+  var partIx=+(data.__part||0), parts=[];
   copy.addEventListener('click',function(){
-    if(!parts.length){ parts=clipParts(); partIx=0; }
+    if(!parts.length) parts=clipParts();
+    if(partIx>=parts.length) partIx=0;
     if(!putOnClipboard(parts[partIx])){
       copy.textContent='Press and hold to copy';
       setTimeout(function(){copy.textContent='Copy as text';},2600); return;
     }
-    partIx++;
+    partIx++; data.__part=partIx; save(data);
     if(partIx<parts.length){
       copy.textContent='Copy part '+(partIx+1)+' of '+parts.length;
       ptxt.textContent='Part '+partIx+' copied — paste it, then come back';
@@ -521,16 +495,26 @@ h2 .of{color:var(--ink-2);font-size:14px;font-weight:500;letter-spacing:0;margin
         ? 'All '+parts.length+' parts copied — paste the last one'
         : 'Copied — now paste it in Discord');
       again.textContent='Copy again';
+      data.__part=0; save(data);
       again.onclick=function(){ parts=clipParts(); partIx=0; putOnClipboard(parts[0]); };
     }
   });
 
-  again.addEventListener('click',function(){
-    if(again.textContent.indexOf('Save')===0){
-      saveFile();
-      var w=again.textContent; again.textContent='Saved';
-      setTimeout(function(){ again.textContent=w; },1800);
-    }
+  /* she left mid-way and came back: pick up where she was */
+  if(partIx>0){
+    parts=clipParts();
+    if(partIx<parts.length) copy.textContent='Copy part '+(partIx+1)+' of '+parts.length;
+  }
+
+  /* the bar steps aside for the keyboard */
+  document.addEventListener('focusin',function(e){
+    if(e.target.matches('textarea, input[type=text]')) bar.classList.add('away');
+  });
+  document.addEventListener('focusout',function(){
+    setTimeout(function(){
+      var a=document.activeElement;
+      if(!a || !a.matches('textarea, input[type=text]')) bar.classList.remove('away');
+    },80);
   });
 
   whereAmI(); tally();
