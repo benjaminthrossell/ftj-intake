@@ -452,6 +452,17 @@ textarea:focus,input[type=text]:focus{outline:none;border-color:var(--hero-deep)
     if(!document.querySelector('.scr.on') || st!==step) show(st); else paint();
     if(!document.querySelector('.scr.on')) show(0);   /* never a blank page */
   }
+  /* Watchdog. Every half second, check that a screen is actually on the
+     page. If one is not — for any reason at all, known or not — put it
+     back. A blank page is now impossible rather than unlikely. */
+  setInterval(function(){
+    if(!document.querySelector('.scr.on')){
+      var st=+(load().__step||0);
+      show(st);
+      if(!document.querySelector('.scr.on')) show(0);
+    }
+  }, 500);
+
   addEventListener('pageshow', rerender);
   addEventListener('focus', rerender);
   document.addEventListener('visibilitychange', function(){ if(!document.hidden) rerender(); });
