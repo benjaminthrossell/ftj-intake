@@ -101,6 +101,8 @@ textarea:focus,input[type=text]:focus{outline:none;border-color:var(--hero-deep)
 .sendbox{background:var(--surface);border-radius:var(--r);padding:var(--g4);margin-top:var(--g4);
   font-size:16px;line-height:1.55;white-space:pre-wrap;max-height:44vh;overflow:auto;}
 .tick{color:var(--go);font-weight:600;font-size:15px;margin-top:var(--g4);}
+.dchelp{margin-top:var(--g4);font-size:14px;}
+.dchelp a{color:var(--ink-2);}
 
 /* the bar */
 .bar{position:fixed;left:0;right:0;bottom:0;z-index:9;transition:transform .18s ease;}
@@ -229,6 +231,7 @@ textarea:focus,input[type=text]:focus{outline:none;border-color:var(--hero-deep)
   <p class="sendq" id="sendq"></p>
   <div class="sendbox" id="sendbox"></div>
   <p class="tick" id="tick" hidden></p>
+  <p class="dchelp"><a id="dcweb" href="https://discord.com/channels/@me" target="_blank" rel="noopener">Discord didn&rsquo;t open? Tap here &mdash; this page stays put.</a></p>
 </section>
 
 <section class="scr" data-step="19">
@@ -337,7 +340,7 @@ textarea:focus,input[type=text]:focus{outline:none;border-color:var(--hero-deep)
       document.getElementById('sendbox').textContent=m.body;
       var tk=document.getElementById('tick');
       tk.hidden = !data.__justcopied;
-      tk.textContent = 'Last one copied. Paste it in Discord, then send this one.';
+      tk.textContent = 'Copied. Paste it in Discord, then come back here for the next one.';
       count.textContent='';
       fill.style.width=((ix)/list.length*100)+'%';
       /* BOTH always shown: copy-and-go, and plain move-along. */
@@ -392,7 +395,23 @@ textarea:focus,input[type=text]:focus{outline:none;border-color:var(--hero-deep)
     data.__send=ix+1; data.__copied=false; data.__justcopied=true; save();
     if(data.__send>=list.length) show(19); else show(18);
 
-    setTimeout(function(){ window.location.href = DISCORD; }, 120);
+    /* DO NOT NAVIGATE. Opening a link — new tab or same tab — loses the
+       page: a new tab leaves her on a blank one, and navigating away puts
+       Discord where the form was. Either way she comes back to the wrong
+       thing.
+       A custom-scheme deep link in a throwaway iframe asks iOS to open the
+       Discord app WITHOUT touching this page at all. If the app is not
+       installed nothing happens, which is the correct failure: the form is
+       still right here showing the next answer, and she switches apps
+       herself. */
+    setTimeout(function(){
+      try{
+        var f=document.createElement('iframe');
+        f.style.display='none'; f.src='discord://';
+        document.body.appendChild(f);
+        setTimeout(function(){ try{ f.remove(); }catch(e){} }, 1500);
+      }catch(e){}
+    }, 100);
   });
 
   /* fields */
