@@ -236,6 +236,7 @@ textarea:focus,input[type=text]:focus{outline:none;border-color:var(--hero-deep)
   <h2 style="font-weight:500;letter-spacing:-0.05em;font-size:1.6rem;line-height:1.05;margin:var(--g5) 0 0">Done. Thank you.</h2>
   <p style="font-size:17px;line-height:1.55;margin:var(--g4) 0 0">That&rsquo;s everything I need. One last thing &mdash; send me your Macrofactor export tonight so I can read your week before we talk.</p>
   <p style="font-size:17px;line-height:1.55;margin:var(--g4) 0 0">See you on the call.</p>
+  <p style="font-size:15px;line-height:1.55;margin:var(--g5) 0 0;color:var(--ink-2)">If one of them didn&rsquo;t make it into Discord, hit Back and you can send it again.</p>
 </section>
 
 </div>
@@ -285,7 +286,7 @@ textarea:focus,input[type=text]:focus{outline:none;border-color:var(--hero-deep)
 
   function paint(){
     godc.hidden=true; next.hidden=false; next.classList.remove('plain');
-    back.hidden=(step===0||step>=17);
+    back.hidden=(step===0);
     if(step===0){
       count.textContent=''; next.textContent='Start'; next.disabled=false;
       fill.style.width='0';
@@ -335,6 +336,11 @@ textarea:focus,input[type=text]:focus{outline:none;border-color:var(--hero-deep)
     show(step+1);
   });
   back.addEventListener('click',function(){
+    if(step===17){ show(N); return; }                 /* done -> last question */
+    if(step===19){                                     /* finished -> last answer */
+      var l=answered(); data.__send=Math.max(0,l.length-1); data.__copied=false; save();
+      show(18); return;
+    }
     if(step===18){
       var ix=+(data.__send||0);
       if(ix>0){ data.__send=ix-1; data.__copied=false; save(); paint(); }
