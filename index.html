@@ -260,8 +260,8 @@ textarea:focus,input[type=text]:focus{outline:none;border-color:var(--hero-deep)
 <section class="scr" data-step="19">
   <span class="badge" style="width:40px;height:40px"><i></i></span>
   <h2 style="font-weight:500;letter-spacing:-0.05em;font-size:1.75rem;line-height:1.1;margin:var(--g5) 0 0">Done. Thank you.</h2>
-  <p style="font-size:1.0625rem;line-height:1.55;margin:var(--g4) 0 0">That&rsquo;s everything I need. One last thing &mdash; send me your Macrofactor export tonight so I can read your week before we talk.</p>
-  <p style="font-size:1.0625rem;line-height:1.55;margin:var(--g4) 0 0">See you on the call.</p>
+  <p style="font-size:1.0625rem;line-height:1.55;margin:var(--g4) 0 0">That&rsquo;s everything I need. See you on the call.</p>
+  <div class="blanks"><b>One last thing</b>Send me your Macrofactor export tonight, so I can read your week before we talk.</div>
   <p style="font-size:1rem;line-height:1.55;margin:var(--g5) 0 0;color:var(--ink-2)">If one of them didn&rsquo;t make it into Discord, hit Back and you can send it again.</p>
 </section>
 
@@ -386,7 +386,7 @@ textarea:focus,input[type=text]:focus{outline:none;border-color:var(--hero-deep)
       godc.textContent = done ? 'Open Discord' : 'Copy this answer';
       next.hidden = !done;              /* nothing to move on to until it is copied */
       next.disabled=false; next.classList.add('plain');
-      next.textContent = (ix+1<list.length) ? 'Next answer' : 'That\u2019s the lot';
+      next.textContent = (ix+1<list.length) ? 'Next answer' : 'Finish';
       back.hidden=false;
     } else {
       /* The thank-you screen. Back STAYS — the copy on this screen tells her
