@@ -248,7 +248,7 @@ textarea:focus,input[type=text]:focus{outline:none;border-color:var(--hero-deep)
   </div>
   <button class="btn wide" id="godiscord" type="button">Copy this answer</button>
   <p class="where" id="whereto" hidden>Paste it in our channel &mdash; the private one, just you and me.</p>
-  <p class="dchelp" id="dchelp" hidden><a href="https://discord.com/channels/@me" target="_blank" rel="noopener">Discord didn&rsquo;t open? Tap here &mdash; this page stays put.</a></p>
+  <p class="dchelp" id="dchelp" hidden><a id="dclink" href="https://discord.gg/BAfwq8W2f" target="_blank" rel="noopener">Discord didn&rsquo;t open? Tap here &mdash; this page stays put.</a></p>
 </section>
 
 <section class="scr" data-step="19">
@@ -275,7 +275,8 @@ textarea:focus,input[type=text]:focus{outline:none;border-color:var(--hero-deep)
 <script>
 (function(){
   /* Swap for the real channel link and it opens straight there. */
-  var DISCORD='https://discord.com/channels/@me';
+  var DISCORD='https://discord.gg/BAfwq8W2f';
+  (function(){var a=document.getElementById('dclink'); if(a) a.href=DISCORD;})();
 
   var N=16, KEY='bt-intake-v3', QS={"1": "How much headspace does your body take up right now?", "2": "What’s the end picture we’re playing for? If this goes exactly to plan, what does your body look like when we’re done?", "3": "And once you’re there — how much of your life are you expecting to spend keeping it? What would be too much?", "4": "If I could instantly change three things about your body, what would they be?", "5": "Send me a photo of a body that looks like what you’re after. This one’s compulsory with all my clients — I need to see exactly what you’re picturing rather than guess at what you mean.", "6": "Why now? What’s changed that’s got you moving on this?", "7": "What’s in the way? If this doesn’t work, what’ll have been the reason?", "8": "What have you tried before, and what happened? Did you succeed? How long did you maintain those results?", "9": "Who does the cooking and the shopping, and who are you cooking for?", "10": "If you wanted to eat something different to everyone else at dinner — is that fine, awkward, or a fight?", "11": "Where does your eating usually fall apart? What time of day, and what’s normally going on when it does?", "12": "Forge runs three to four sessions a week. Is there anything in how your week is built that’d get in the way of doing them regularly?", "13": "And past that — how crazy would life have to get for you to miss a session you’d committed to?", "14": "Have you tracked food before? If you have — did it work, was it confusing or simple enough, and what made you stop?", "15": "Any questions, concerns or fears about this — whether it’ll work for you, or whether you’ve got what it takes? I’d rather hear them now than have you sitting on them.", "16": "What’s your biggest burning question about food or training — the thing you’ve never been sure about and want a straight answer on?"};
   function load(){ try{ return JSON.parse(localStorage.getItem(KEY)||'{}'); }catch(e){ return {}; } }
