@@ -106,7 +106,10 @@ textarea:focus,input[type=text]:focus{outline:none;border-color:var(--hero-deep)
   font-size:13px;font-weight:600;border-radius:var(--r);padding:2px var(--g2);}
 .tick{color:var(--go);font-weight:600;font-size:15px;margin-top:var(--g4);}
 .btn.wide{width:100%;margin-top:var(--g5);}
-.dchelp{margin-top:var(--g4);font-size:14px;}
+/* Where it goes, said once, at the moment she needs it. Not on the button
+   — a button label says what the button does; instructions go beside it. */
+.where{margin-top:var(--g4);font-size:15px;line-height:1.5;color:var(--ink);}
+.dchelp{margin-top:var(--g3);font-size:14px;}
 .dchelp a{color:var(--ink-2);}
 
 /* THE CONTROLS SIT IN THE PAGE, never pinned to the window.
@@ -244,6 +247,7 @@ textarea:focus,input[type=text]:focus{outline:none;border-color:var(--hero-deep)
     <span class="stamp" id="stamp" hidden>Copied</span>
   </div>
   <button class="btn wide" id="godiscord" type="button">Copy this answer</button>
+  <p class="where" id="whereto" hidden>Paste it in our channel &mdash; the private one, just you and me.</p>
   <p class="dchelp" id="dchelp" hidden><a href="https://discord.com/channels/@me" target="_blank" rel="noopener">Discord didn&rsquo;t open? Tap here &mdash; this page stays put.</a></p>
 </section>
 
@@ -355,6 +359,12 @@ textarea:focus,input[type=text]:focus{outline:none;border-color:var(--hero-deep)
       var done = (data.__copiedIx===ix);
       document.getElementById('stamp').hidden = !done;
       document.getElementById('dchelp').hidden = !done;
+      var w=document.getElementById('whereto');
+      w.hidden = !done;
+      /* spelled out the first time, short from then on */
+      w.textContent = (ix===0)
+        ? 'Paste it in our channel — the private one, just you and me.'
+        : 'Paste it in our channel.';
       godc.textContent = done ? 'Open Discord' : 'Copy this answer';
       next.hidden = !done;              /* nothing to move on to until it is copied */
       next.disabled=false; next.classList.add('plain');
